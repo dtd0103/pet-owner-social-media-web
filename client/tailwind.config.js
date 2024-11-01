@@ -33,9 +33,9 @@ export default {
       },
       inset: {
         custom: '72px',
-        custom_header_right: '5.6rem',
-        custom_header_right_1: '9rem',
-        custom_header_right_2: '12.5rem',
+        custom_header_right: '0.37rem',
+        custom_header_right_1: '9.12rem',
+        custom_header_right_2: '12.6rem',
         custom_header_top: '1.8rem',
         custom_leftside_right: '9.2rem'
       },

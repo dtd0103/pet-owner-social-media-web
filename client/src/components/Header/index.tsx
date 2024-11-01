@@ -3,8 +3,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faHouse, faUserGroup, faUsers, faMessage, faGear, faAddressBook } from '@fortawesome/free-solid-svg-icons'
 import userAvatar from '../../assets/img/avatar.png'
 import SearchBar from './SearchBar'
+import { useState } from 'react'
 
 const Header = () => {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+
+  const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen)
   return (
     <header
       className={`bg-white z-20 grid grid-cols-3 items-center w-full fixed top-0 left-0 right-0 px-8 py-4 shadow-sm`}
@@ -57,13 +61,37 @@ const Header = () => {
             />
           </Link>
         </div>
-        <div className='bg-custom-primary rounded-md w-10 h-10 cursor-pointer hover:opacity-80 mr-0.5'>
+        {/* <div className='bg-custom-primary rounded-md w-10 h-10 cursor-pointer hover:opacity-80 mr-0.5'>
           <Link to='/groups' className='text-custom-grey font-semibold flex items-center'>
             <FontAwesomeIcon
               icon={faGear}
               className='absolute top-7 right-custom_header_right w-4 h-4 mr-2 text-slate-500'
             />
           </Link>
+        </div> */}
+        <div className='relative inline-block'>
+          <div
+            className='bg-custom-primary rounded-md w-10 h-10 cursor-pointer hover:opacity-80 mr-0.5'
+            onClick={toggleDropdown}
+          >
+            <Link to='#' className='text-custom-grey font-semibold flex items-center'>
+              <FontAwesomeIcon
+                icon={faGear}
+                className='absolute top-3 right-custom_header_right w-4 h-4 mr-2 text-slate-500'
+              />
+            </Link>
+          </div>
+
+          {isDropdownOpen && (
+            <div className='absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10'>
+              <Link to='/edit-profile' className='block px-4 py-2 text-gray-800 hover:bg-gray-100'>
+                Edit Your Profile
+              </Link>
+              <Link to='/logout' className='block px-4 py-2 text-gray-800 hover:bg-gray-100'>
+                Log out
+              </Link>
+            </div>
+          )}
         </div>
         <div className='flex items-center cursor-pointer'>
           <img src={userAvatar} alt='User' className='w-10 h-10 rounded-md' />

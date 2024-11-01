@@ -41,6 +41,11 @@ export class RelationshipController {
     return this.relationshipService.getFriends(req.user.id);
   }
 
+  @Get('pending/:id')
+  async getPendingRequests(@Param('id') id: string) {
+    return this.relationshipService.getPendingRequests(id);
+  }
+
   @UseGuards(AuthGuard)
   @Get(':id')
   getRelationshipById(@Param('id') id: string) {

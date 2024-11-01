@@ -112,14 +112,42 @@ export class RelationshipService {
   }
 
   async getRecommended(userId: string): Promise<Relationship[]> {
-    const user = await this.findUserById(userId);
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['friends'],
+    });
     const friends = user.friendships.map((friend) => friend.id);
-
     const relationships = await this.relationshipRepository.find({
       where: {
         user: { id: Not(In(friends)) },
         friend: { id: Not(userId) },
       },
+      select: {
+        user: {
+          id: true,
+          name: true,
+          avatar: true,
+        },
+        friend: {
+          id: true,
+          name: true,
+          avatar: true,
+        },
+        status: true,
+        isFriend: true,
+        isBlocked: true,
+      },
+    });
+    return relationships;
+  }
+
+  async getPendingRequests(userId: string): Promise<Relationship[]> {
+    const pendingRequests = await this.relationshipRepository.find({
+      where: [
+        { user: { id: userId }, status: 'pending' },
+        { friend: { id: userId }, status: 'pending' },
+      ],
+      relations: ['user', 'friend'],
       select: {
         user: { id: true, name: true, avatar: true },
         friend: { id: true, name: true, avatar: true },
@@ -129,7 +157,14 @@ export class RelationshipService {
       },
     });
 
-    return relationships;
+    if (!pendingRequests.length) {
+      throw new HttpException(
+        'No pending requests found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return pendingRequests;
   }
 
   async sendRequest(userId: string, friendId: string) {

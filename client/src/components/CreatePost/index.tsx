@@ -23,7 +23,7 @@ const CreatePost = () => {
       <form action=''>
         <div className='flex mb-10'>
           <img src={defaultAvatar} alt='' className='w-12 h-12 rounded-full' />
-          <div className='flex flex-col ml-10'>
+          <div className='w-full flex flex-col ml-10'>
             <input
               type='text'
               className={`text-xl ${
@@ -32,13 +32,13 @@ const CreatePost = () => {
               placeholder='Title of new post...'
               onBlur={(e) => setIsTitleFilled(e.target.value !== '')}
             />
-            <input
-              type='text'
+            <textarea
               className={`text-sm mt-1 ${
                 isContentFilled ? 'text-black' : 'text-slate-400'
-              } focus:text-black focus:outline-none placeholder:text-md`}
+              } focus:text-black focus:outline-none placeholder:text-md resize-none`}
               placeholder='Share what you think...'
               onBlur={(e) => setIsContentFilled(e.target.value !== '')}
+              rows={2}
             />
           </div>
         </div>

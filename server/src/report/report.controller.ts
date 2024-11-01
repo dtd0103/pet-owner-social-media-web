@@ -19,7 +19,7 @@ import { UpdateReportDto } from './dto/update-report.dto';
 
 @ApiBearerAuth()
 @ApiTags('Report')
-@Controller('reports')
+@Controller('api/v1/reports')
 export class ReportController {
   constructor(private readonly reportService: ReportService) {}
 
@@ -30,15 +30,15 @@ export class ReportController {
   }
 
   @UseGuards(AuthGuard)
-  @Get(':id')
-  async getReportById(@Param('id') id: string) {
-    return this.reportService.getById(id);
-  }
-
-  @UseGuards(AuthGuard)
   @Get('user')
   async getReportByUser(@Req() req: any) {
     return this.reportService.getByUserId(req.user.id);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get(':id')
+  async getReportById(@Param('id') id: string) {
+    return this.reportService.getById(id);
   }
 
   @UseGuards(AuthGuard)

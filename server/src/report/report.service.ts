@@ -52,10 +52,12 @@ export class ReportService {
   }
 
   async getByUserId(userId: string) {
+    console.log(userId);
     const reports = await this.reportRepository.find({
       where: { reporter: { id: userId } },
       relations: { reporter: true },
     });
+    console.log(reports);
 
     return reports.map((report) => ({
       id: report.id,
