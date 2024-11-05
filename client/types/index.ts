@@ -14,6 +14,7 @@ export type UserDetail = {
   role: 'Pet Owner' | 'Admin'
   avatar?: string | null
   background?: string | null
+  quote?: string
   status: boolean
   createdAt: string
   updatedAt: string
@@ -52,8 +53,8 @@ export type Post = {
   id: string
   title: string
   description: string
-  created_at: string
-  updated_at: string
+  createdAt: string
+  updatedAt: string
   user: User
   media?: Media
   likes?: User[]
@@ -66,6 +67,18 @@ export type Like = {
   post_id: string
 }
 
+export type Pet = {
+  id: string
+  avatar?: string | null
+  name: string
+  species: string
+  sex: string
+  breed: string
+  date: string
+  description: string
+  owner: User
+}
+
 export type Report = {
   id: string
   reporter: User
@@ -75,4 +88,12 @@ export type Report = {
   status: 'Pending' | 'Under Review' | 'Resolved' | 'Rejected'
   created_at: string
   updated_at: string
+}
+
+export type Activity = {
+  id: string
+  action_type: string
+  object_type: 'post' | 'group' | 'like' | 'comment' | 'relationship' | 'report' | 'pet' | 'user' | 'message'
+  timestamp: string
+  details: string
 }

@@ -63,7 +63,7 @@ const SignUp = () => {
         console.log(response.data)
         const accessToken = response.data.access_token
         localStorage.setItem('access_token', accessToken)
-        window.location.href = '/home'
+        window.location.href = '/'
       }
     } catch (error) {
       if (textError) {

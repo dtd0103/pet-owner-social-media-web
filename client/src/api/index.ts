@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { Post } from '../../types'
 
 const getAuthorizationHeader = () => {
   const token = localStorage.getItem('access_token')
@@ -10,6 +11,18 @@ export async function fetchSearchPosts(name: string) {
     const response = await axios.get(`http://localhost:3001/api/v1/posts?search=${name}`, {
       headers: getAuthorizationHeader()
     })
+
+    if (Array.isArray(response.data)) {
+      response.data = response.data.map((post) => {
+        if (post.media && post.media.link) {
+          post.media.link = post.media.link
+            .replace('D:\\NLCN\\Web\\server\\', 'http://localhost:3001/')
+            .replace(/\\/g, '/')
+        }
+        return post
+      })
+    }
+
     return response.data
   } catch (error) {
     console.error('Error occur while fetching posts:', error)
@@ -22,7 +35,20 @@ export async function fetchPostsRecommendation() {
     const response = await axios.get('http://localhost:3001/api/v1/posts/get/recommended', {
       headers: getAuthorizationHeader()
     })
-    return response.data
+
+    console.log(response.data)
+
+    const posts = response.data.data
+
+    posts.forEach((post: Post) => {
+      if (post.media) {
+        post.media.link = post.media.link
+          .replace('D:\\NLCN\\Web\\server\\', 'http://localhost:3001/')
+          .replace(/\\/g, '/')
+      }
+    })
+
+    return posts
   } catch (error) {
     console.error('Error occur while fetching recommended posts:', error)
     throw error
@@ -34,6 +60,16 @@ export async function fetchPostsByUserId(id: string) {
     const response = await axios.get(`http://localhost:3001/api/v1/posts/user/${id}`, {
       headers: getAuthorizationHeader()
     })
+
+    if (Array.isArray(response.data)) {
+      response.data.forEach((post) => {
+        if (post.media) {
+          post.media.link = post.media.link
+            .replace('D:\\NLCN\\Web\\server\\', 'http://localhost:3001/')
+            .replace(/\\/g, '/')
+        }
+      })
+    }
     return response.data
   } catch (error) {
     console.error(`Error occur while fetching posts for user ${id}:`, error)
@@ -97,6 +133,19 @@ export async function fetchMyProfile() {
     const response = await axios.get(`http://localhost:3001/api/v1/users/profile`, {
       headers: getAuthorizationHeader()
     })
+
+    if (response.data && response.data.background) {
+      response.data.background = response.data.background
+        .replace('D:\\NLCN\\Web\\server\\', 'http://localhost:3001/')
+        .replace(/\\/g, '/')
+    }
+
+    if (response.data.avatar) {
+      response.data.avatar = response.data.avatar
+        .replace('D:\\NLCN\\Web\\server\\', 'http://localhost:3001/')
+        .replace(/\\/g, '/')
+    }
+
     return response.data
   } catch (error) {
     console.error('Error occur while fetching my profile:', error)
@@ -364,6 +413,48 @@ export async function fetchReportByCommentId(id: string) {
     return response.data
   } catch (error) {
     console.error('Error occur while fetching report:', error)
+    throw error
+  }
+}
+
+export async function fetchMyActivity() {
+  try {
+    const response = await axios.get(`http://localhost:3001/api/v1/activities/user`, {
+      headers: getAuthorizationHeader()
+    })
+    return response.data
+  } catch (error) {
+    console.error('Error occur while fetching my activity:', error)
+    throw error
+  }
+}
+
+export async function fetchSearch(name: string) {
+  if (name === '') {
+    return {
+      posts: [],
+      users: [],
+      groups: [],
+      pets: []
+    }
+  }
+
+  try {
+    const [postsResponse, usersResponse, groupsResponse, petsResponse] = await Promise.all([
+      axios.get(`http://localhost:3001/api/v1/posts?search=${name}`, { headers: getAuthorizationHeader() }),
+      axios.get(`http://localhost:3001/api/v1/users?search=${name}`, { headers: getAuthorizationHeader() }),
+      axios.get(`http://localhost:3001/api/v1/groups?search=${name}`, { headers: getAuthorizationHeader() }),
+      axios.get(`http://localhost:3001/api/v1/pets?search=${name}`, { headers: getAuthorizationHeader() })
+    ])
+
+    return {
+      posts: postsResponse.data,
+      users: usersResponse.data,
+      groups: groupsResponse.data,
+      pets: petsResponse.data
+    }
+  } catch (error) {
+    console.error('Error occurred while fetching search results:', error)
     throw error
   }
 }

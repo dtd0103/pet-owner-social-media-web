@@ -23,4 +23,10 @@ export class ActivityService {
 
     await this.activityRepository.save(newActivity);
   }
+
+  async getByUserId(id: string) {
+    return await this.activityRepository.find({
+      where: { user: { id } },
+    });
+  }
 }

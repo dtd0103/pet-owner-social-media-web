@@ -167,7 +167,7 @@ export class ReportService {
       actionType: 'create_report',
       objectId: post.id,
       objectType: 'post',
-      details: `User ${user.name} reported post ${post.id}.`,
+      details: `User ${user.name} reported a post.`,
     };
     await this.activityService.logActivity(user, logActivityDto);
 
@@ -267,7 +267,7 @@ export class ReportService {
       actionType: 'create_report',
       objectId: comment.id,
       objectType: 'comment',
-      details: `User ${user.name} reported comment ${comment.id}.`,
+      details: `User ${user.name} reported a comment.`,
     };
     await this.activityService.logActivity(user, logActivityDto);
 

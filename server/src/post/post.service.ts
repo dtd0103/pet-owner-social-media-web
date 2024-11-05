@@ -514,6 +514,24 @@ export class PostService {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
+    const userPosts = await this.postRepository.find({
+      where: { user: { id: userId }, group: IsNull() },
+      relations: ['user', 'comments', 'media'],
+      select: {
+        user: {
+          id: true,
+          name: true,
+          email: true,
+          avatar: true,
+        },
+        comments: true,
+        media: {
+          id: true,
+          link: true,
+        },
+      },
+    });
+
     const friendIds = user.relationships
       .filter((relationship) => relationship.status === 'accepted')
       .map((relationship) =>
@@ -571,7 +589,7 @@ export class PostService {
       });
     }
 
-    const allPosts = [...postsByFriends, ...postsByGroups];
+    const allPosts = [...userPosts, ...postsByFriends, ...postsByGroups];
     const uniquePosts = Array.from(
       new Set(allPosts.map((post) => post.id)),
     ).map((id) => allPosts.find((post) => post.id === id));

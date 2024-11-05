@@ -82,6 +82,7 @@ export class PostController {
       throw new BadRequestException(req.fileValidationError);
     }
     const userId = req.user.id;
+    console.log('Request body:', createPostDto);
     return this.postService.create(userId, createPostDto, file);
   }
 

@@ -18,6 +18,9 @@ import { RelationshipModule } from './relationship/relationship.module';
 import { Relationship } from './relationship/entities/relationship.entity';
 import { CommentModule } from './comment/comment.module';
 import { ReportModule } from './report/report.module';
+import { ActivityModule } from './activity/activity.module';
+import { MessageModule } from './message/message.module';
+import { Message } from './message/entities/message.entity';
 
 @Module({
   imports: [
@@ -25,7 +28,15 @@ import { ReportModule } from './report/report.module';
       isGlobal: true,
     }),
     TypeOrmModule.forRoot(dataSourceOptions),
-    TypeOrmModule.forFeature([User, Comment, Media, Post, Group, Relationship]),
+    TypeOrmModule.forFeature([
+      User,
+      Comment,
+      Media,
+      Post,
+      Group,
+      Relationship,
+      Message,
+    ]),
 
     UserModule,
     AuthModule,
@@ -35,6 +46,8 @@ import { ReportModule } from './report/report.module';
     RelationshipModule,
     CommentModule,
     ReportModule,
+    ActivityModule,
+    MessageModule,
   ],
   controllers: [AppController],
   providers: [AppService],

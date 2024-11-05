@@ -1,12 +1,34 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faHouse, faUserGroup, faUsers, faMessage, faGear, faAddressBook } from '@fortawesome/free-solid-svg-icons'
-import userAvatar from '../../assets/img/avatar.png'
+import defaultAvatar from '/default_avatar.jpg'
 import SearchBar from './SearchBar'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { fetchMyProfile } from '../../api'
+import { UserDetail } from '../../../types'
 
 const Header = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [userProfile, setUserProfile] = useState<UserDetail | null>(null)
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const profileData = await fetchMyProfile()
+        setUserProfile(profileData)
+      } catch (error) {
+        console.error('Error loading data:', error)
+      }
+    }
+
+    loadData()
+  }, [])
+
+  const navigate = useNavigate()
+  const handleLogout = () => {
+    localStorage.removeItem('access_token')
+    window.location.reload()
+  }
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen)
   return (
@@ -14,8 +36,10 @@ const Header = () => {
       className={`bg-white z-20 grid grid-cols-3 items-center w-full fixed top-0 left-0 right-0 px-8 py-4 shadow-sm`}
     >
       <div className='flex items-center justify-start col-span-1'>
-        <img src='./logo.svg' alt='logo' className='w-10 h-10' />
-        <h1 className='hidden md:block font-sora text-2xl font-bold text-custom-second mt-0.5 ml-1'>Petiverse.</h1>
+        <Link to='/' className='flex items-center'>
+          <img src='./logo.svg' alt='logo' className='w-10 h-10' />
+          <h1 className='hidden md:block font-sora text-2xl font-bold text-custom-second mt-0.5 ml-1'>Petiverse.</h1>
+        </Link>
         <SearchBar></SearchBar>
       </div>
       <nav className='flex ml-24 w-auto h-auto justify-center space-x-16 col-span-1 md:space-x-20 flex-shrink-0'>
@@ -61,14 +85,6 @@ const Header = () => {
             />
           </Link>
         </div>
-        {/* <div className='bg-custom-primary rounded-md w-10 h-10 cursor-pointer hover:opacity-80 mr-0.5'>
-          <Link to='/groups' className='text-custom-grey font-semibold flex items-center'>
-            <FontAwesomeIcon
-              icon={faGear}
-              className='absolute top-7 right-custom_header_right w-4 h-4 mr-2 text-slate-500'
-            />
-          </Link>
-        </div> */}
         <div className='relative inline-block'>
           <div
             className='bg-custom-primary rounded-md w-10 h-10 cursor-pointer hover:opacity-80 mr-0.5'
@@ -87,14 +103,17 @@ const Header = () => {
               <Link to='/edit-profile' className='block px-4 py-2 text-gray-800 hover:bg-gray-100'>
                 Edit Your Profile
               </Link>
-              <Link to='/logout' className='block px-4 py-2 text-gray-800 hover:bg-gray-100'>
+              <button
+                onClick={handleLogout}
+                className='block px-4 py-2 text-gray-800 hover:bg-gray-100 w-full text-left'
+              >
                 Log out
-              </Link>
+              </button>
             </div>
           )}
         </div>
         <div className='flex items-center cursor-pointer'>
-          <img src={userAvatar} alt='User' className='w-10 h-10 rounded-md' />
+          <img src={userProfile?.avatar ?? defaultAvatar} alt='User' className='w-10 h-10 rounded-md' />
         </div>
       </div>
     </header>

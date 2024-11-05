@@ -35,11 +35,14 @@ export class User {
   @Column({ type: 'enum', enum: ['Pet Owner', 'Admin'], name: 'USER_ROLE' })
   role: 'Pet Owner' | 'Admin';
 
-  @Column({ length: 50, nullable: true, name: 'USER_AVATAR' })
+  @Column({ length: 255, nullable: true, name: 'USER_AVATAR' })
   avatar: string;
 
-  @Column({ length: 50, nullable: true, name: 'USER_BACKGROUND' })
+  @Column({ length: 255, nullable: true, name: 'USER_BACKGROUND' })
   background: string;
+
+  @Column({ nullable: true, name: 'USER_QUOTE' })
+  quote: string;
 
   @Column({ type: 'tinyint', default: 1, name: 'USER_STATUS' })
   status: number;

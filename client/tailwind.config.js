@@ -3,11 +3,12 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
-      margin: {
-        custom_left: '26rem'
+      width: {
+        custom_1: '30%',
+        custom: '22%'
       },
-      height: {
-        custom_height: '9999px'
+      margin: {
+        custom_left: '23.5rem'
       },
       colors: {
         'custom-primary': 'var(--color-custom-primary)',

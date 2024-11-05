@@ -1,11 +1,15 @@
 import { useState } from 'react'
-import defaultAvatar from '/default_avatar.png'
+import defaultAvatar from '/default_avatar.jpg'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPhotoFilm } from '@fortawesome/free-solid-svg-icons'
+
 const CreatePost = () => {
   const [isTitleFilled, setIsTitleFilled] = useState(false)
   const [isContentFilled, setIsContentFilled] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const accessToken = localStorage.getItem('access_token')
 
   const handleFileUpload = () => {
     document.getElementById('image')?.click()
@@ -18,32 +22,74 @@ const CreatePost = () => {
     }
   }
 
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault()
+
+    const formData = new FormData()
+    formData.append('title', title)
+    formData.append('description', description)
+    if (selectedFile) {
+      const fileNameWithExtension = `${title.replace(/\s+/g, '_').toLowerCase()}.${selectedFile.name.split('.').pop()}`
+      formData.append('media', selectedFile, fileNameWithExtension)
+    }
+
+    try {
+      const response = await fetch('http://localhost:3001/api/v1/posts', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        },
+        body: formData
+      })
+
+      if (!response.ok) {
+        const errorResponse = await response.json()
+        throw new Error(errorResponse.message || 'Failed to create post')
+      }
+
+      const result = await response.json()
+      console.log('Post created successfully:', result)
+
+      setTitle('')
+      setDescription('')
+      setSelectedFile(null)
+      setIsTitleFilled(false)
+      setIsContentFilled(false)
+    } catch (error) {
+      console.error('Error creating post:', error)
+    }
+  }
+
   return (
-    <div className='bg-white w-5/6 p-8 ml-custom_left mt-4 rounded-md shadow-md border'>
-      <form action=''>
+    <div className='bg-white px-4 py-6 rounded-md shadow-md border'>
+      <form onSubmit={handleSubmit}>
         <div className='flex mb-10'>
-          <img src={defaultAvatar} alt='' className='w-12 h-12 rounded-full' />
+          <img src={defaultAvatar} alt='' className='w-20 h-20 rounded-full' />
           <div className='w-full flex flex-col ml-10'>
             <input
               type='text'
-              className={`text-xl ${
-                isTitleFilled ? 'text-black' : 'text-slate-400'
-              } focus:text-black focus:outline-none placeholder:text-xl`}
+              className={`text-xl ${isTitleFilled ? 'text-black' : 'text-slate-400'} focus:text-black focus:outline-none placeholder:text-xl`}
               placeholder='Title of new post...'
-              onBlur={(e) => setIsTitleFilled(e.target.value !== '')}
+              value={title}
+              onChange={(e) => {
+                setTitle(e.target.value)
+                setIsTitleFilled(e.target.value !== '')
+              }}
             />
             <textarea
-              className={`text-sm mt-1 ${
-                isContentFilled ? 'text-black' : 'text-slate-400'
-              } focus:text-black focus:outline-none placeholder:text-md resize-none`}
+              className={`text-md mt-1 ${isContentFilled ? 'text-black' : 'text-slate-400'} focus:text-black focus:outline-none placeholder:text-md resize-none`}
               placeholder='Share what you think...'
-              onBlur={(e) => setIsContentFilled(e.target.value !== '')}
+              value={description}
+              onChange={(e) => {
+                setDescription(e.target.value)
+                setIsContentFilled(e.target.value !== '')
+              }}
               rows={2}
             />
           </div>
         </div>
         <div className='flex items-center justify-between'>
-          <button type='button' className='text-gray-500 hover:text-blue-500 ml-3' onClick={handleFileUpload}>
+          <button type='button' className='text-xl text-gray-500 hover:text-blue-500 ml-3' onClick={handleFileUpload}>
             <FontAwesomeIcon icon={faPhotoFilm} /> Photo/ Video
           </button>
           <input
@@ -53,7 +99,10 @@ const CreatePost = () => {
             className='hidden'
             onChange={handleFileChange}
           />
-          <button className='bg-custom-primary text-slate-500 font-semibold rounded-md p-2 mt-2 hover:text-blue-500'>
+          <button
+            type='submit'
+            className='bg-custom-primary text-slate-500 font-semibold rounded-md p-2 mt-2 hover:text-blue-500'
+          >
             Create
           </button>
         </div>
@@ -62,4 +111,5 @@ const CreatePost = () => {
     </div>
   )
 }
+
 export default CreatePost

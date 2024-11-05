@@ -1,20 +1,24 @@
 import { useEffect, useState } from 'react'
-import Comment from '../Comment'
+import CommentComponent from '../Comment'
+import type { Comment } from '../../../types'
 import { fetchCommentsByPostId } from '../../api'
 import { Link } from 'react-router-dom'
 import { checkJwt } from '../../../utils/auth'
+import type { Post as PostType } from '../../../types'
+import defaultAvatar from '/default_avatar.jpg'
 import axios from 'axios'
+import { formatDistanceToNow } from 'date-fns'
+import './Post.css'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faHeart as farHeart, faComment, faPenToSquare } from '@fortawesome/free-regular-svg-icons'
+import { faHeart as fasHeart } from '@fortawesome/free-solid-svg-icons'
 
-const ListComment = ({ postId }) => {
-  const [listComment, setListComment] = useState([])
+const ListComment = ({ postId }: { postId: string }) => {
+  const [listComment, setListComment] = useState<Comment[]>([])
   const [newComment, setNewComment] = useState('')
   const accessToken = localStorage.getItem('access_token')
 
   useEffect(() => {
-    if (!accessToken) {
-      window.location.href = '/sign-in'
-    }
-
     const fetchData = async () => {
       const response = await fetchCommentsByPostId(postId)
       setListComment(response)
@@ -41,7 +45,6 @@ const ListComment = ({ postId }) => {
         }
       )
 
-      // Refetch comments after submission
       const updatedComments = await fetchCommentsByPostId(postId)
       setListComment(updatedComments)
       setNewComment('')
@@ -78,19 +81,23 @@ const ListComment = ({ postId }) => {
           </button>
         </form>
         {listComment.map((comment) => (
-          <Comment key={comment.id} {...comment} />
+          <CommentComponent key={comment.id} {...comment} />
         ))}
       </div>
     </section>
   )
 }
 
-const Post = ({ post }) => {
+const Post = ({ post }: { post: PostType }) => {
   const [showComments, setShowComments] = useState(false)
   const [isOwner, setIsOwner] = useState(false)
   const [liked, setLiked] = useState(false)
-  const [totalLikes, setTotalLikes] = useState(post.likes.length || 0)
-  const postCreatedAt = new Date(post.created_at)
+  const [totalLikes, setTotalLikes] = useState(post.likes?.length || 0)
+  const [isExpanded, setIsExpanded] = useState(false)
+
+  const toggleExpand = () => {
+    setIsExpanded((prev) => !prev)
+  }
 
   useEffect(() => {
     const checkOwner = async () => {
@@ -101,6 +108,15 @@ const Post = ({ post }) => {
     }
     checkOwner()
   }, [post])
+
+  const getPostDetails = async () => {
+    try {
+      const response = await axios.get(`http://localhost:3001/api/v1/posts/${post.id}`)
+      return response.data
+    } catch (error) {
+      console.error('Error fetching post details:', error)
+    }
+  }
 
   const likePost = async () => {
     try {
@@ -123,50 +139,59 @@ const Post = ({ post }) => {
   }
 
   return (
-    <div className='flex bg-white shadow-lg rounded-lg m-1'>
+    <div className='flex px-2 mt-5 bg-white shadow-lg rounded-lg'>
       <div className='flex-row w-full items-start px-4 py-6'>
         <div className='flex items-center justify-between'>
           <div className='flex items-end'>
             <Link to={`/profile/${post.user.id}`}>
               <img
                 className='w-16 h-16 rounded-xl object-cover mr-4 shadow'
-                src={post.user.avatar || './default-avatar.png'}
+                src={post.user.avatar || defaultAvatar}
                 alt='User Avatar'
               />
             </Link>
             <div>
               <Link to={`/profile/${post.user.id}`}>
-                <h2 className='text-lg font-semibold text-gray-900'>
-                  {post.user.first_name} {post.user.last_name}
-                </h2>
+                <h2 className='text-lg font-semibold text-gray-900'>{post.user.name}</h2>
               </Link>
-              <span className='text-sm text-gray-700'>
-                {postCreatedAt.toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                })}
+              <span className='text-sm text-slate-400'>
+                {post.createdAt ? formatDistanceToNow(new Date(post.createdAt), { addSuffix: true }) : 'Invalid date'}
               </span>
             </div>
           </div>
           {isOwner && (
             <button onClick={() => console.log('Edit Post')}>
-              <img src='edit-icon-url' alt='Edit' />
+              <FontAwesomeIcon icon={faPenToSquare} />
+              <span className='ml-2'>Edit</span>
             </button>
           )}
         </div>
         <p className='mt-3 text-gray-700 font-bold'>{post.title}</p>
-        <p className='mt-3 text-gray-700'>{post.description}</p>
+        <p className={`mt-3 text-gray-700 ${isExpanded ? 'line-clamp-none' : 'line-clamp-3'}`}>{post.description}</p>
+        <div className='flex justify-between items-center'>
+          {!isExpanded && post.description.length > 100 && (
+            <button className='text-blue-500 mt-2' onClick={toggleExpand}>
+              More...
+            </button>
+          )}
+          {isExpanded && (
+            <button className='text-slate-400 mt-2' onClick={toggleExpand}>
+              Shorten
+            </button>
+          )}
+        </div>
+
         {post.media && (
-          <img src={post.media.link} alt='Post Media' className='w-full h-full object-cover rounded-lg max-h-screen' />
+          <img src={post.media.link} alt='Post Media' className='w-full object-cover rounded-lg max-h-screen' />
         )}
         <div className='mt-4 flex items-center'>
           <button onClick={likePost} className='mr-2'>
-            <img src={liked ? 'liked-icon-url' : 'like-icon-url'} alt='Like' />
+            <FontAwesomeIcon icon={liked ? fasHeart : farHeart} className='text-red-500' />
           </button>
           <span>{totalLikes}</span>
           <button onClick={() => setShowComments((prev) => !prev)} className='ml-4'>
-            Comments
+            <FontAwesomeIcon icon={faComment} />
+            <span className='ml-2'>Comments</span>
           </button>
         </div>
         {showComments && <ListComment postId={post.id} />}

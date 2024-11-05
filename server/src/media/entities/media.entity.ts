@@ -14,7 +14,7 @@ export class Media {
   @PrimaryGeneratedColumn('uuid', { name: 'MEDIA_ID' })
   id: string;
 
-  @Column({ length: 50, name: 'MEDIA_LINK' })
+  @Column({ length: 255, name: 'MEDIA_LINK' })
   link: string;
 
   @Column({

@@ -1,19 +1,35 @@
+import { useEffect, useState } from 'react'
 import userAvatar from '../../assets/img/avatar.png'
+import { fetchMyActivity } from '../../api'
+import { Activity } from '../../../types'
+import { formatDistanceToNow } from 'date-fns'
+
 const RightSideBar = () => {
+  const [activities, setActivities] = useState<Activity[] | null>(null)
   const suggestions = [
     { id: 1, name: 'User A', profilePic: userAvatar },
     { id: 2, name: 'User B', profilePic: userAvatar },
     { id: 3, name: 'User C', profilePic: userAvatar }
   ]
 
-  const activities = [
-    { id: 1, status: 'User Dat Do Thanh commented on a post.', time: '2hr' },
-    { id: 2, status: 'User Do Dat created a post.', time: '3hr' },
-    { id: 3, status: 'User Dat Do Thanh reported user Loc Ngo.', time: '30m' }
-  ]
+  useEffect(() => {
+    const fetchActivities = async () => {
+      try {
+        const allActivities: Activity[] = await fetchMyActivity()
+
+        const sortedActivities = allActivities.sort(
+          (a: Activity, b: Activity) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+        )
+        setActivities(sortedActivities.slice(0, 3))
+      } catch (error) {
+        console.error('Error fetching activities:', error)
+      }
+    }
+    fetchActivities()
+  }, [])
 
   return (
-    <aside className='w-1/5 h-screen fixed top-custom bottom-0 right-0 z-10 p-4 flex-col'>
+    <aside className='w-custom h-screen fixed top-custom bottom-0 right-0 z-10 p-4 flex-col'>
       <div className='flex-1'>
         <div className='bg-white p-5 mb-6 rounded-md border shadow-lg'>
           <h2 className='text-lg font-semibold mb-4'>Suggested</h2>
@@ -34,12 +50,18 @@ const RightSideBar = () => {
         <div className='bg-white p-5 rounded-md border shadow-lg'>
           <h2 className='text-lg font-semibold  mb-2'>Latest Activity</h2>
           <ul>
-            {activities.map((contact) => (
-              <li key={contact.id} className='flex flex-col items-start mb-2'>
-                <p className='font-semibold'>{contact.status}</p>
-                <p className='text-slate-400'>{contact.time}</p>
-              </li>
-            ))}
+            {activities ? (
+              activities.map((activity) => (
+                <li key={activity.id} className='flex flex-col items-start mb-2'>
+                  <p className='font-semibold'>{activity.details}</p>
+                  <p className='text-slate-400'>
+                    {formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true })}
+                  </p>
+                </li>
+              ))
+            ) : (
+              <p className='text-slate-400'>No activities available</p>
+            )}
           </ul>
         </div>
       </div>
