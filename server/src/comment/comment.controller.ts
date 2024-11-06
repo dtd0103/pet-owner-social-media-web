@@ -147,7 +147,7 @@ export class CommentController {
 
   @UseGuards(AuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<void> {
-    return this.commentService.remove(id);
+  remove(@Param('id') id: string, @Req() req: any): Promise<void> {
+    return this.commentService.remove(id, req.user.id);
   }
 }

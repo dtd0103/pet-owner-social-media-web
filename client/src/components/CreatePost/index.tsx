@@ -2,6 +2,7 @@ import { useState } from 'react'
 import defaultAvatar from '/default_avatar.jpg'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPhotoFilm } from '@fortawesome/free-solid-svg-icons'
+import axios from 'axios'
 
 const CreatePost = () => {
   const [isTitleFilled, setIsTitleFilled] = useState(false)
@@ -28,27 +29,25 @@ const CreatePost = () => {
     const formData = new FormData()
     formData.append('title', title)
     formData.append('description', description)
+
     if (selectedFile) {
       const fileNameWithExtension = `${title.replace(/\s+/g, '_').toLowerCase()}.${selectedFile.name.split('.').pop()}`
       formData.append('media', selectedFile, fileNameWithExtension)
     }
 
+    formData.forEach((value, key) => {
+      console.log(key, value)
+    })
+
     try {
-      const response = await fetch('http://localhost:3001/api/v1/posts', {
-        method: 'POST',
+      const response = await axios.post('http://localhost:3001/api/v1/posts', formData, {
         headers: {
-          Authorization: `Bearer ${accessToken}`
-        },
-        body: formData
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'multipart/form-data'
+        }
       })
 
-      if (!response.ok) {
-        const errorResponse = await response.json()
-        throw new Error(errorResponse.message || 'Failed to create post')
-      }
-
-      const result = await response.json()
-      console.log('Post created successfully:', result)
+      console.log('Post created successfully:', response.data)
 
       setTitle('')
       setDescription('')
@@ -77,7 +76,7 @@ const CreatePost = () => {
               }}
             />
             <textarea
-              className={`text-md mt-1 ${isContentFilled ? 'text-black' : 'text-slate-400'} focus:text-black focus:outline-none placeholder:text-md resize-none`}
+              className={`text-md mt-1 ${isContentFilled ? 'text-black' : 'text-slate-400'} focus:text-black focus:outline-none placeholder:text-md `}
               placeholder='Share what you think...'
               value={description}
               onChange={(e) => {

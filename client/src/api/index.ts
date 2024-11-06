@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { Post } from '../../types'
+import { log } from 'node:console'
 
 const getAuthorizationHeader = () => {
   const token = localStorage.getItem('access_token')
@@ -173,6 +174,18 @@ export async function fetchCommentsByPostId(id: string) {
     const response = await axios.get(`http://localhost:3001/api/v1/comments/post/${id}`, {
       headers: getAuthorizationHeader()
     })
+    console.log(response)
+
+    if (Array.isArray(response.data)) {
+      response.data.forEach((post) => {
+        if (post.media) {
+          post.media.link = post.media.link
+            .replace('D:\\NLCN\\Web\\server\\', 'http://localhost:3001/')
+            .replace(/\\/g, '/')
+        }
+      })
+    }
+
     return response.data
   } catch (error) {
     console.error(`Error occur while fetching comments for post ${id}:`, error)

@@ -79,7 +79,7 @@ export class CommentService {
   async getByPostId(postId: string): Promise<Comment[]> {
     return this.commentRepository.find({
       order: { updatedAt: 'DESC' },
-      relations: ['user', 'post', 'replies', 'repliedComment'],
+      relations: ['user', 'post', 'replies', 'repliedComment', 'media'],
       where: {
         post: {
           id: postId,
@@ -93,6 +93,11 @@ export class CommentService {
         },
         post: {
           id: true,
+        },
+        media: {
+          id: true,
+          link: true,
+          type: true,
         },
         repliedComment: {
           id: true,
@@ -149,7 +154,7 @@ export class CommentService {
   async getById(id: string): Promise<Comment[]> {
     return this.commentRepository.find({
       order: { updatedAt: 'DESC' },
-      relations: ['user', 'post', 'replies', 'repliedComment'],
+      relations: ['user', 'post', 'replies', 'repliedComment', 'media'],
       where: {
         id: id,
       },
@@ -217,6 +222,8 @@ export class CommentService {
     }
 
     try {
+      const savedComment = await this.commentRepository.save(comment);
+
       if (file) {
         const media = new Media();
         const type = file.mimetype.split('/')[0];
@@ -239,13 +246,11 @@ export class CommentService {
 
         fs.writeFileSync(filePath, file.buffer);
         media.link = filePath;
-        media.comment = comment;
+        media.comment = savedComment;
 
         await this.mediaRepository.save(media);
-        comment.media = media;
+        savedComment.media = media;
       }
-
-      const savedComment = await this.commentRepository.save(comment);
 
       const logActivityDto: LogActivityDto = {
         actionType: 'create',
@@ -394,7 +399,18 @@ export class CommentService {
     }
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: string, userId: string): Promise<void> {
+    const user = await this.userRepository.findOneBy({ id: userId });
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
     await this.commentRepository.delete(id);
+    const logActivityDto: LogActivityDto = {
+      actionType: 'delete',
+      objectId: id,
+      objectType: 'comment',
+      details: `User ${user.name} deleted a comment.`,
+    };
+    await this.activityService.logActivity(user, logActivityDto);
   }
 }

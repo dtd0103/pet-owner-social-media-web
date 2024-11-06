@@ -28,8 +28,8 @@ export type UserGroup = {
 export type Comment = {
   id: string
   text: string
-  created_at: string
-  updated_at: string
+  createdAt: string
+  updatedAt: string
   user: User
   post: Post
   media?: Media | null

@@ -3,117 +3,201 @@ import type { Comment } from '../../../types'
 import { useEffect, useState } from 'react'
 import { checkJwt } from '../../../utils/auth'
 import defaultAvatar from '/default_avatar.jpg'
+import { formatDistanceToNow } from 'date-fns'
+import axios, { AxiosError } from 'axios'
 
-const Comment = (comment: Comment) => {
-  const commentCreateAt = new Date(comment.created_at)
-  const currentTime = new Date()
+const CommentComponent = (initialComment: Comment) => {
+  const [comment, setComment] = useState(initialComment)
   const [currentUser, setCurrentUser] = useState<any>()
-
+  const [isEditing, setIsEditing] = useState(false)
+  const [editedText, setEditedText] = useState(comment.text)
+  const [file, setFile] = useState<File | null>(null)
+  const [isDeleted, setIsDeleted] = useState(false)
+  const [isOwner, setIsOwner] = useState(false)
+  const [isReplying, setIsReplying] = useState(false)
+  const [replyText, setReplyText] = useState('')
   useEffect(() => {
-    const getCurrentUser = async () => {
-      setCurrentUser(checkJwt())
+    const checkOwner = async () => {
+      const currentUser = await checkJwt()
+      if (currentUser && currentUser.id === comment.user.id) {
+        setIsOwner(true)
+      }
     }
-    getCurrentUser()
-  }, [])
+    checkOwner()
+  }, [comment])
 
-  // const timeDifference = () => {
-  //   var days = currentTime.getDate() - commentCreateAt.getDate();
-  //   var hours = currentTime.getHours() - commentCreateAt.getHours();
-  //   var minutes = currentTime.getMinutes() - commentCreateAt.getMinutes();
-  //   var seconds = currentTime.getSeconds() - commentCreateAt.getSeconds();
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = event.target.files?.[0]
+    if (selectedFile) {
+      setFile(selectedFile)
+    }
+  }
 
-  //   // Adjust for negative values
-  //   if (seconds < 0) {
-  //     minutes -= 1;
-  //     seconds += 60;
-  //   }
+  const handleEdit = async () => {
+    try {
+      const accessToken = localStorage.getItem('access_token')
 
-  //   if (minutes < 0) {
-  //     hours -= 1;
-  //     minutes += 60;
-  //   }
-  //   if (hours < 0) {
-  //     days -= 1;
-  //     hours += 24;
-  //   }
+      const data = {
+        text: editedText,
+        media: file ? { file } : {}
+      }
 
-  //   if (days > 0) {
-  //     return `${days} day${days > 1 ? 's' : ''} ago`;
-  //   } else if (hours > 0) {
-  //     return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-  //   } else if (minutes > 0) {
-  //     return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-  //   } else {
-  //     return 'Just a moment ago';
-  //   }
-  // };
+      const response = await axios.put(`http://localhost:3001/api/v1/comments/${comment.id}`, data, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      console.log('Comment edited:', response.data)
+      setComment(response.data)
+      setIsEditing(false)
+    } catch (error) {
+      const axiosError = error as AxiosError
+
+      if (axiosError.response) {
+        console.error('Error editing comment:', axiosError.response.data)
+      } else {
+        console.error('Error editing comment:', axiosError.message)
+      }
+    }
+  }
+
+  const handleRemove = async () => {
+    const isConfirmed = window.confirm('Are you sure you want to delete this comment?')
+
+    if (!isConfirmed) {
+      return
+    }
+
+    try {
+      const accessToken = localStorage.getItem('access_token')
+      await axios.delete(`http://localhost:3001/api/v1/comments/${comment.id}`, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      })
+      setIsDeleted(true)
+      alert('Comment deleted successfully.')
+    } catch (error) {
+      console.error('Error removing comment:', error)
+      alert('Failed to delete comment. Please try again later.')
+    }
+  }
+
+  const handleReply = async () => {
+    try {
+      const accessToken = localStorage.getItem('access_token')
+      const data = {
+        postId: comment.post.id,
+        text: replyText,
+        media: {},
+        repliedCommentId: comment.id
+      }
+
+      const response = await axios.post(`http://localhost:3001/api/v1/comments`, data, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      console.log('Reply sent:', response.data)
+      setReplyText('')
+      setIsReplying(false)
+    } catch (error) {
+      console.error('Error sending reply:', error)
+    }
+  }
+
+  if (isDeleted) return null
   return (
-    <article className=' p-2 m-2  text-base bg-white rounded-lg border'>
-      <footer className='flex justify-between items-center mb-2'>
-        <div className='flex items-center'>
-          <Link to={`/profile/${comment.user.id}`}>
+    <article className='px-5 py-3 m-2 text-base bg-white rounded-lg border'>
+      <section className='flex justify-between items-center mb-2'>
+        <div className='flex w-full justify-between'>
+          <Link to={`/profile/${comment.user.id}`} className='flex items-center'>
             <img
-              className='mr-2 w-6 h-6 rounded-full '
+              className='mr-2 w-12 h-12 rounded-full'
               src={comment.user.avatar ? comment.user.avatar : defaultAvatar}
               alt={comment.user.name}
-            ></img>
-            <p className='inline-flex items-center mr-3 text-sm text-gray-900  font-semibold'>{comment.user.name} </p>
+            />
+            <p className='inline-flex items-center ml-2 mb-2 text-xl font-semibold'>{comment.user.name}</p>
           </Link>
-          <p className='text-sm text-gray-600'>
-            {/* <time>{timeDifference()}</time> */}
-            <time>{commentCreateAt.toDateString()}</time>
+          <p className='mt-1 text-gray-600'>
+            <time>{formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}</time>
           </p>
         </div>
-        <button
-          id='dropdownComment1Button'
-          data-dropdown-toggle='dropdownComment1'
-          className='inline-flex items-center p-2 text-sm font-medium text-center text-gray-500  bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-50  '
-          type='button'
-        >
-          <svg
-            className='w-4 h-4'
-            aria-hidden='true'
-            xmlns='http://www.w3.org/2000/svg'
-            fill='currentColor'
-            viewBox='0 0 16 3'
-          >
-            <path d='M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z' />
-          </svg>
-          <span className='sr-only'>Comment settings</span>
-        </button>
-        <div id='dropdownComment1' className='hidden z-10 w-36 bg-white rounded divide-y divide-gray-100 shadow'>
-          <ul className='py-1 text-sm text-gray-700 ' aria-labelledby='dropdownMenuIconHorizontalButton'>
-            <li>
-              <a href='#' className='block py-2 px-4 hover:bg-gray-100'>
-                Remove
-              </a>
-            </li>
-          </ul>
+      </section>
+      {isEditing ? (
+        <div>
+          <textarea
+            value={editedText}
+            onChange={(e) => setEditedText(e.target.value)}
+            className='w-full mt-2 p-2 border rounded'
+          />
+          <input type='file' onChange={handleFileChange} className='mt-2' />
+          <button onClick={handleEdit} className='mt-2 bg-blue-500 text-white px-3 py-1 rounded'>
+            Save
+          </button>
+          <button onClick={() => setIsEditing(false)} className='mt-2 bg-gray-500 text-white px-3 py-1 rounded'>
+            Cancel
+          </button>
         </div>
-      </footer>
-      <p className='text-gray-900 '>{comment.text}</p>
+      ) : (
+        <p className='text-gray-900 text-xl font-semibold mt-4'>{comment.text}</p>
+      )}
+      {comment.media && <img src={comment.media.link} alt='Comment Media' className='w-full object-cover rounded-lg' />}
       <div className='flex items-center mt-4 space-x-4'>
-        <button type='button' className='flex items-center text-sm text-gray-500 hover:underline font-medium'>
-          <svg
-            className='mr-1.5 w-3.5 h-3.5'
-            aria-hidden='true'
-            xmlns='http://www.w3.org/2000/svg'
-            fill='none'
-            viewBox='0 0 20 18'
-          >
-            <path
-              stroke='currentColor'
-              stroke-linecap='round'
-              stroke-linejoin='round'
-              stroke-width='2'
-              d='M5 5h5M5 8h2m6-3h2m-5 3h6m2-7H2a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h3v5l5-5h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1Z'
-            />
-          </svg>
+        <button
+          type='button'
+          className='flex items-center text-gray-500 hover:underline font-medium'
+          onClick={() => setIsReplying(!isReplying)}
+        >
           Reply
         </button>
+
+        {isOwner && (
+          <div className='flex items-center'>
+            <span className='mb-2 font-extrabold text-slate-500 mr-3'>.</span>
+            <button
+              type='button'
+              onClick={() => setIsEditing(!isEditing)}
+              className='flex items-center text-gray-500 hover:underline font-medium'
+            >
+              Edit
+            </button>
+          </div>
+        )}
+
+        {isOwner && (
+          <div className='flex items-center'>
+            <span className='mb-2 font-extrabold text-slate-500 mr-3'>.</span>
+            <button
+              type='button'
+              onClick={handleRemove}
+              className='flex items-center text-gray-500 hover:underline font-medium'
+            >
+              Remove
+            </button>
+          </div>
+        )}
       </div>
+      {isReplying && (
+        <div className='mt-4'>
+          <textarea
+            value={replyText}
+            onChange={(e) => setReplyText(e.target.value)}
+            placeholder='Write your reply...'
+            className='w-full p-2 border rounded'
+          />
+          <button onClick={handleReply} className='mt-2 bg-blue-500 text-white px-3 py-1 rounded'>
+            Send Reply
+          </button>
+          <button onClick={() => setIsReplying(false)} className='mt-2 bg-gray-500 text-white px-3 py-1 rounded'>
+            Cancel
+          </button>
+        </div>
+      )}
     </article>
   )
 }
 
-export default Comment
+export default CommentComponent
