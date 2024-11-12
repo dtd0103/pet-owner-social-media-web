@@ -210,31 +210,31 @@ export class MessageService {
   }
 
   async getAllUserConversation(id: any): Promise<Message[]> {
-    const userGroups = await this.groupRepository.find({
-      where: { users: { id: id } },
-      relations: ['users'],
-    });
-    const groupConversations = await this.messageRepository.find({
-      where: userGroups.map((group) => ({
-        group: { id: group.id },
-      })),
-      order: { sendAt: 'DESC' },
-      relations: ['sender', 'group', 'receiver'],
-      select: {
-        sender: {
-          id: true,
-          name: true,
-          avatar: true,
-        },
-        group: {
-          id: true,
-          name: true,
-          avatar: true,
-        },
-        content: true,
-        sendAt: true,
-      },
-    });
+    // const userGroups = await this.groupRepository.find({
+    //   where: { users: { id: id } },
+    //   relations: ['users'],
+    // });
+    // const groupConversations = await this.messageRepository.find({
+    //   where: userGroups.map((group) => ({
+    //     group: { id: group.id },
+    //   })),
+    //   order: { sendAt: 'DESC' },
+    //   relations: ['sender', 'group', 'receiver'],
+    //   select: {
+    //     sender: {
+    //       id: true,
+    //       name: true,
+    //       avatar: true,
+    //     },
+    //     group: {
+    //       id: true,
+    //       name: true,
+    //       avatar: true,
+    //     },
+    //     content: true,
+    //     sendAt: true,
+    //   },
+    // });
 
     const userConversations = await this.messageRepository.find({
       where: [
@@ -269,20 +269,99 @@ export class MessageService {
       );
       return userConversations.indexOf(message) == index;
     });
-    const filteredGroupConversations = groupConversations.filter((message) => {
-      const index = groupConversations.findIndex(
-        (item) => item.group.id == message.group.id,
-      );
-      return groupConversations.indexOf(message) == index;
-    });
+    // const filteredGroupConversations = groupConversations.filter((message) => {
+    //   const index = groupConversations.findIndex(
+    //     (item) => item.group.id == message.group.id,
+    //   );
+    //   return groupConversations.indexOf(message) == index;
+    // });
 
     const conversations = [
       ...filteredUserConversations,
-      ...filteredGroupConversations,
+      // ...filteredGroupConversations,
     ];
 
     return conversations;
   }
+
+  // async getAllUserConversation(id: any): Promise<Message[]> {
+  //   const userGroups = await this.groupRepository.find({
+  //     where: { users: { id: id } },
+  //     relations: ['users'],
+  //   });
+
+  //   const groupConversations = await this.messageRepository.find({
+  //     where: userGroups.map((group) => ({
+  //       group: { id: group.id },
+  //     })),
+  //     order: { sendAt: 'DESC' },
+  //     relations: ['sender', 'group', 'receiver'],
+  //     select: {
+  //       sender: {
+  //         id: true,
+  //         name: true,
+  //         avatar: true,
+  //       },
+  //       group: {
+  //         id: true,
+  //         name: true,
+  //         avatar: true,
+  //       },
+  //       content: true,
+  //       sendAt: true,
+  //     },
+  //   });
+
+  //   const filteredGroupConversations = groupConversations.length
+  //     ? groupConversations.filter((message) => {
+  //         const index = groupConversations.findIndex(
+  //           (item) => item.group?.id == message.group?.id,
+  //         );
+  //         return groupConversations.indexOf(message) == index;
+  //       })
+  //     : [];
+
+  //   const userConversations = await this.messageRepository.find({
+  //     where: [
+  //       { sender: { id: id }, group: IsNull() },
+  //       { receiver: { id: id }, group: IsNull() },
+  //     ],
+  //     order: { sendAt: 'DESC' },
+  //     relations: ['sender', 'receiver', 'group'],
+  //     select: {
+  //       sender: {
+  //         id: true,
+  //         name: true,
+  //         avatar: true,
+  //       },
+  //       receiver: {
+  //         id: true,
+  //         name: true,
+  //         avatar: true,
+  //       },
+  //       content: true,
+  //       sendAt: true,
+  //     },
+  //   });
+
+  //   const filteredUserConversations = userConversations.filter((message) => {
+  //     const index = userConversations.findIndex(
+  //       (item) =>
+  //         (item.sender?.id == message.sender?.id &&
+  //           item.receiver?.id == message.receiver?.id) ||
+  //         (item.sender?.id == message.receiver?.id &&
+  //           item.receiver?.id == message.sender?.id),
+  //     );
+  //     return userConversations.indexOf(message) == index;
+  //   });
+
+  //   const conversations = [
+  //     ...filteredUserConversations,
+  //     ...filteredGroupConversations,
+  //   ];
+
+  //   return conversations;
+  // }
 
   async getGroupConversation(id: any, group_id: string): Promise<Message[]> {
     const isUserInGroup = await this.groupRepository.findOne({
@@ -321,6 +400,7 @@ export class MessageService {
     const message = new Message();
     message.content = createMessageDto.content;
     message.sender = sender;
+    message.sendAt = new Date();
 
     if (createMessageDto.receiverId) {
       const receiver = await this.userRepository.findOneBy({
@@ -352,8 +432,8 @@ export class MessageService {
         if (type === 'image' || type === 'video') {
           media.type = type;
           media.link = await this.saveMediaFile(file);
-          message.media = media;
           await this.mediaRepository.save(media);
+          message.media = media;
         }
       }
 

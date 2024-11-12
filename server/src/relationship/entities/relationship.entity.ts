@@ -31,4 +31,12 @@ export class Relationship {
   @ManyToOne(() => User, (user) => user.friendships)
   @JoinColumn({ name: 'FRIEND_ID' })
   friend: User;
+
+  @Column({
+    type: 'datetime',
+    name: 'DATE',
+    nullable: true,
+    default: null,
+  })
+  date: Date | null;
 }

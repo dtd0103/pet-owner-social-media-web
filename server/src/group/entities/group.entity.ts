@@ -17,7 +17,12 @@ export class Group {
   @Column({ name: 'GROUP_NAME', type: 'varchar', length: 50 })
   name: string;
 
-  @Column({ name: 'GROUP_AVATAR', type: 'varchar', length: 50, nullable: true })
+  @Column({
+    name: 'GROUP_AVATAR',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
   avatar: string;
 
   @ManyToMany(() => User, (user) => user.groups)

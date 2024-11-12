@@ -2,6 +2,9 @@ export type User = {
   id: string
   name: string
   avatar?: string | null
+  email?: string
+  tel?: string
+  password?: string
 }
 
 export type UserDetail = {
@@ -21,8 +24,11 @@ export type UserDetail = {
 }
 
 export type UserGroup = {
-  groupId: string
-  userId: string
+  id: string
+  name: string
+  avatar: string
+  role: string
+  joinedAt: string
 }
 
 export type Comment = {
@@ -40,7 +46,7 @@ export type Group = {
   id: string
   name: string
   avatar?: string | null
-  users?: User[]
+  users?: UserGroup[]
 }
 
 export type Media = {
@@ -72,7 +78,7 @@ export type Pet = {
   avatar?: string | null
   name: string
   species: string
-  sex: string
+  sex: number
   breed: string
   date: string
   description: string
@@ -96,4 +102,24 @@ export type Activity = {
   object_type: 'post' | 'group' | 'like' | 'comment' | 'relationship' | 'report' | 'pet' | 'user' | 'message'
   timestamp: string
   details: string
+}
+
+export type Relationship = {
+  id: string
+  status: string
+  isFriend: number
+  isBlocked: number
+  user: User
+  friend: User
+  date?: string | null
+}
+
+export type Message = {
+  id: string
+  content: string
+  media?: Media
+  sender: User
+  receiver: User
+  group?: Group
+  sendAt: string
 }

@@ -21,6 +21,13 @@ export class UpdateUserDto {
   @IsPhoneNumber('VN')
   tel: string;
 
+  @ApiProperty()
+  quote: string;
+
+  @ApiProperty()
+  @IsOptional()
+  password?: string;
+
   @ApiProperty({ enum: ['Pet Owner', 'Admin'] })
   @IsOptional()
   role?: 'Pet Owner' | 'Admin';

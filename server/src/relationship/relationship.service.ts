@@ -1,11 +1,14 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Not, In } from 'typeorm';
+import { Repository } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { Relationship } from './entities/relationship.entity';
 import { LogActivityDto } from 'src/activity/dto/log-activity.dto';
 import { ActivityService } from 'src/activity/activity.service';
+import { CreateMessageDto } from 'src/message/dto/create-message.dto';
+import { MessageService } from 'src/message/message.service';
+import { Message } from 'src/message/entities/message.entity';
 
 @Injectable()
 export class RelationshipService {
@@ -14,7 +17,9 @@ export class RelationshipService {
     private relationshipRepository: Repository<Relationship>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Message) private messageRepository: Repository<Message>,
     private activityService: ActivityService,
+    private messageService: MessageService,
   ) {}
 
   private async findUserById(id: string): Promise<User> {
@@ -78,11 +83,16 @@ export class RelationshipService {
 
   async getFriends(id: string): Promise<Relationship[]> {
     const friends = await this.relationshipRepository.find({
-      where: [
-        { user: { id }, isFriend: true },
-        { friend: { id }, isFriend: true },
-      ],
+      where: [{ user: { id }, isFriend: true }],
       relations: ['user', 'friend'],
+      select: {
+        user: { id: true, name: true, avatar: true },
+        friend: { id: true, name: true, avatar: true },
+        status: true,
+        isFriend: true,
+        isBlocked: true,
+        date: true,
+      },
     });
 
     if (!friends.length) {
@@ -110,35 +120,38 @@ export class RelationshipService {
 
     return relationship;
   }
-
-  async getRecommended(userId: string): Promise<Relationship[]> {
+  async getRecommended(
+    userId: string,
+  ): Promise<{ id: string; name: string; avatar: string }[]> {
     const user = await this.userRepository.findOne({
       where: { id: userId },
-      relations: ['friends'],
+      relations: ['friendships', 'relationships'],
     });
-    const friends = user.friendships.map((friend) => friend.id);
-    const relationships = await this.relationshipRepository.find({
-      where: {
-        user: { id: Not(In(friends)) },
-        friend: { id: Not(userId) },
-      },
-      select: {
-        user: {
-          id: true,
-          name: true,
-          avatar: true,
-        },
-        friend: {
-          id: true,
-          name: true,
-          avatar: true,
-        },
-        status: true,
-        isFriend: true,
-        isBlocked: true,
-      },
-    });
-    return relationships;
+
+    const friendIds = user.friendships.map((friend) => friend.id);
+
+    const queryBuilder = this.userRepository
+      .createQueryBuilder('user')
+      .leftJoin(
+        'relationship',
+        'r',
+        '(r.USER_ID = :userId AND r.FRIEND_ID = user.id) OR (r.USER_ID = user.id AND r.FRIEND_ID = :userId)',
+        { userId },
+      )
+      .where('user.id != :userId', { userId });
+
+    if (friendIds.length > 0) {
+      queryBuilder.andWhere('user.id NOT IN (:...friendIds)', { friendIds });
+    }
+
+    const potentialFriends = await queryBuilder
+      .andWhere('r.REL_ID IS NULL')
+      .orderBy('RAND()')
+      .limit(3)
+      .select(['user.id', 'user.name', 'user.avatar'])
+      .getMany();
+
+    return potentialFriends;
   }
 
   async getPendingRequests(userId: string): Promise<Relationship[]> {
@@ -168,10 +181,18 @@ export class RelationshipService {
   }
 
   async sendRequest(userId: string, friendId: string) {
-    const existingRelationship = await this.findRelationship(userId, friendId);
+    const existingRelationship = await this.relationshipRepository
+      .createQueryBuilder('r')
+      .where(
+        '(r.USER_ID = :userId AND r.FRIEND_ID = :friendId) OR (r.USER_ID = :friendId AND r.FRIEND_ID = :userId)',
+        { userId, friendId },
+      )
+      .andWhere('r.STATUS = :status', { status: 'pending' })
+      .getOne();
+
     if (existingRelationship) {
       throw new HttpException(
-        'Friend request already sent',
+        'A pending friend request already exists between you and this user.',
         HttpStatus.FORBIDDEN,
       );
     }
@@ -204,6 +225,37 @@ export class RelationshipService {
     return { message: 'Friend request sent' };
   }
 
+  // async acceptRequest(userId: string, friendId: string) {
+  //   const relationship = await this.findRelationship(friendId, userId);
+  //   if (!relationship || relationship.status !== 'pending') {
+  //     throw new HttpException('Invalid friend request', HttpStatus.BAD_REQUEST);
+  //   }
+
+  //   relationship.status = 'accepted';
+  //   relationship.isFriend = true;
+  //   await this.relationshipRepository.save(relationship);
+
+  //   const reverseRelationship = await this.findRelationship(userId, friendId);
+  //   if (reverseRelationship) {
+  //     reverseRelationship.status = 'accepted';
+  //     reverseRelationship.isFriend = true;
+  //     await this.relationshipRepository.save(reverseRelationship);
+  //   }
+
+  //   const user = await this.findUserById(userId);
+  //   const friend = await this.findUserById(friendId);
+
+  //   const logActivityDto: LogActivityDto = {
+  //     actionType: 'accept_request',
+  //     objectId: friend.id,
+  //     objectType: 'relationship',
+  //     details: `User ${user.name} accepted friend request from ${friend.name}.`,
+  //   };
+  //   await this.activityService.logActivity(user, logActivityDto);
+
+  //   return { message: 'Friend request accepted' };
+  // }
+
   async acceptRequest(userId: string, friendId: string) {
     const relationship = await this.findRelationship(friendId, userId);
     if (!relationship || relationship.status !== 'pending') {
@@ -212,17 +264,34 @@ export class RelationshipService {
 
     relationship.status = 'accepted';
     relationship.isFriend = true;
+    relationship.date = new Date();
     await this.relationshipRepository.save(relationship);
 
     const reverseRelationship = await this.findRelationship(userId, friendId);
-    if (reverseRelationship) {
-      reverseRelationship.status = 'accepted';
-      reverseRelationship.isFriend = true;
-      await this.relationshipRepository.save(reverseRelationship);
+    if (!reverseRelationship) {
+      const user = await this.findUserById(userId);
+      const friend = await this.findUserById(friendId);
+
+      const newReverseRelationship = this.relationshipRepository.create({
+        user: user,
+        friend: friend,
+        status: 'accepted',
+        isFriend: true,
+        date: new Date(),
+      });
+
+      await this.relationshipRepository.save(newReverseRelationship);
     }
 
     const user = await this.findUserById(userId);
     const friend = await this.findUserById(friendId);
+
+    const createMessageDto: CreateMessageDto = {
+      content: `You are now friends! Feel free to message each other.`,
+      receiverId: friend.id,
+    };
+
+    await this.messageService.create(user.id, createMessageDto);
 
     const logActivityDto: LogActivityDto = {
       actionType: 'accept_request',
@@ -237,13 +306,9 @@ export class RelationshipService {
 
   async rejectRequest(userId: string, friendId: string) {
     const relationship = await this.findRelationship(friendId, userId);
+
     if (relationship?.status === 'pending') {
       await this.relationshipRepository.remove(relationship);
-
-      const reverseRelationship = await this.findRelationship(userId, friendId);
-      if (reverseRelationship) {
-        await this.relationshipRepository.remove(reverseRelationship);
-      }
 
       const user = await this.findUserById(userId);
       const friend = await this.findUserById(friendId);
@@ -257,6 +322,7 @@ export class RelationshipService {
       await this.activityService.logActivity(user, logActivityDto);
       return { message: 'Friend request rejected' };
     }
+
     throw new HttpException(
       'Invalid request rejection',
       HttpStatus.BAD_REQUEST,
@@ -268,11 +334,6 @@ export class RelationshipService {
 
     if (relationship?.status === 'pending') {
       await this.relationshipRepository.remove(relationship);
-
-      const reverseRelationship = await this.findRelationship(friendId, userId);
-      if (reverseRelationship) {
-        await this.relationshipRepository.remove(reverseRelationship);
-      }
 
       const user = await this.findUserById(userId);
       const friend = await this.findUserById(friendId);
@@ -286,6 +347,7 @@ export class RelationshipService {
       await this.activityService.logActivity(user, logActivityDto);
       return { message: 'Friend request canceled' };
     }
+
     throw new HttpException(
       'Invalid request cancellation',
       HttpStatus.BAD_REQUEST,

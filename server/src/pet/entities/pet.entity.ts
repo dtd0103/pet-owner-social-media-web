@@ -12,7 +12,7 @@ export class Pet {
   @PrimaryGeneratedColumn('uuid', { name: 'PET_ID' })
   id: string;
 
-  @Column({ type: 'varchar', name: 'PET_AVATAR', length: 50 })
+  @Column({ type: 'varchar', name: 'PET_AVATAR', length: 255 })
   avatar: string;
 
   @Column({ type: 'varchar', name: 'PET_NAME', length: 50 })

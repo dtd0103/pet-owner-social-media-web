@@ -1,30 +1,56 @@
 import { Link } from 'react-router-dom'
-import type { Comment } from '../../../types'
-import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { checkJwt } from '../../../utils/auth'
 import defaultAvatar from '/default_avatar.jpg'
 import { formatDistanceToNow } from 'date-fns'
 import axios, { AxiosError } from 'axios'
+import { RootState } from '../../redux/store'
+import { addComment, editComment, removeComment } from '../../redux/slice/commentSlice'
+import { useEffect, useState } from 'react'
+import { Comment } from '../../../types'
 
-const CommentComponent = (initialComment: Comment) => {
-  const [comment, setComment] = useState(initialComment)
-  const [currentUser, setCurrentUser] = useState<any>()
-  const [isEditing, setIsEditing] = useState(false)
-  const [editedText, setEditedText] = useState(comment.text)
+const CommentComponent = ({ initialComment }: { initialComment: Comment }) => {
+  const dispatch = useDispatch()
+
+  const commentsState = useSelector((state: RootState) => state.comments)
+
+  const [editedText, setEditedText] = useState(initialComment.text)
   const [file, setFile] = useState<File | null>(null)
-  const [isDeleted, setIsDeleted] = useState(false)
   const [isOwner, setIsOwner] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
   const [isReplying, setIsReplying] = useState(false)
   const [replyText, setReplyText] = useState('')
+  const [comment, setComment] = useState<Comment>(initialComment)
+
+  const [replyToComment, setReplyToComment] = useState<Comment | null>(null)
+
+  useEffect(() => {
+    if (initialComment.replied_comment_id) {
+      const fetchReplyComment = async () => {
+        try {
+          const response = await axios.get(`http://localhost:3001/api/v1/comments/${initialComment.replied_comment_id}`)
+          setReplyToComment(response.data)
+        } catch (error) {
+          console.error('Error fetching replied comment:', error)
+        }
+      }
+      fetchReplyComment()
+    }
+  }, [initialComment.replied_comment_id])
+
+  useEffect(() => {
+    setComment(initialComment)
+  }, [initialComment])
+
   useEffect(() => {
     const checkOwner = async () => {
       const currentUser = await checkJwt()
-      if (currentUser && currentUser.id === comment.user.id) {
+      if (currentUser && currentUser.id === initialComment.user.id) {
         setIsOwner(true)
       }
     }
     checkOwner()
-  }, [comment])
+  }, [initialComment])
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0]
@@ -37,24 +63,25 @@ const CommentComponent = (initialComment: Comment) => {
     try {
       const accessToken = localStorage.getItem('access_token')
 
-      const data = {
-        text: editedText,
-        media: file ? { file } : {}
+      const formData = new FormData()
+      formData.append('text', editedText)
+
+      if (file) {
+        formData.append('media', file)
       }
 
-      const response = await axios.put(`http://localhost:3001/api/v1/comments/${comment.id}`, data, {
+      const response = await axios.put(`http://localhost:3001/api/v1/comments/${initialComment.id}`, formData, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'multipart/form-data'
         }
       })
 
-      console.log('Comment edited:', response.data)
+      dispatch(editComment(response.data))
       setComment(response.data)
       setIsEditing(false)
     } catch (error) {
       const axiosError = error as AxiosError
-
       if (axiosError.response) {
         console.error('Error editing comment:', axiosError.response.data)
       } else {
@@ -72,10 +99,10 @@ const CommentComponent = (initialComment: Comment) => {
 
     try {
       const accessToken = localStorage.getItem('access_token')
-      await axios.delete(`http://localhost:3001/api/v1/comments/${comment.id}`, {
+      await axios.delete(`http://localhost:3001/api/v1/comments/${initialComment.id}`, {
         headers: { Authorization: `Bearer ${accessToken}` }
       })
-      setIsDeleted(true)
+      dispatch(removeComment(initialComment.id))
       alert('Comment deleted successfully.')
     } catch (error) {
       console.error('Error removing comment:', error)
@@ -87,10 +114,10 @@ const CommentComponent = (initialComment: Comment) => {
     try {
       const accessToken = localStorage.getItem('access_token')
       const data = {
-        postId: comment.post.id,
+        postId: initialComment.post.id,
         text: replyText,
         media: {},
-        repliedCommentId: comment.id
+        repliedCommentId: initialComment.id
       }
 
       const response = await axios.post(`http://localhost:3001/api/v1/comments`, data, {
@@ -100,7 +127,7 @@ const CommentComponent = (initialComment: Comment) => {
         }
       })
 
-      console.log('Reply sent:', response.data)
+      dispatch(addComment(response.data))
       setReplyText('')
       setIsReplying(false)
     } catch (error) {
@@ -108,21 +135,20 @@ const CommentComponent = (initialComment: Comment) => {
     }
   }
 
-  if (isDeleted) return null
   return (
     <article className='px-5 py-3 m-2 text-base bg-white rounded-lg border'>
       <section className='flex justify-between items-center mb-2'>
         <div className='flex w-full justify-between'>
-          <Link to={`/profile/${comment.user.id}`} className='flex items-center'>
+          <Link to={`/profile/${initialComment.user.id}`} className='flex items-center'>
             <img
-              className='mr-2 w-12 h-12 rounded-full'
-              src={comment.user.avatar ? comment.user.avatar : defaultAvatar}
-              alt={comment.user.name}
+              className='mr-2 w-12 h-12 rounded-full object-cover'
+              src={initialComment.user.avatar || defaultAvatar}
+              alt={initialComment.user.name}
             />
-            <p className='inline-flex items-center ml-2 mb-2 text-xl font-semibold'>{comment.user.name}</p>
+            <p className='inline-flex items-center ml-2 mb-2 text-xl font-semibold'>{initialComment.user.name}</p>
           </Link>
           <p className='mt-1 text-gray-600'>
-            <time>{formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}</time>
+            <time>{formatDistanceToNow(new Date(initialComment.createdAt), { addSuffix: true })}</time>
           </p>
         </div>
       </section>
@@ -142,9 +168,20 @@ const CommentComponent = (initialComment: Comment) => {
           </button>
         </div>
       ) : (
-        <p className='text-gray-900 text-xl font-semibold mt-4'>{comment.text}</p>
+        <p className='text-gray-900 text-xl font-semibold mt-4'>{initialComment.text}</p>
       )}
-      {comment.media && <img src={comment.media.link} alt='Comment Media' className='w-full object-cover rounded-lg' />}
+
+      {initialComment.media && initialComment.media.type === 'image' && (
+        <img src={initialComment.media.link} alt='Comment Media' className='w-1/3 object-contain rounded-lg' />
+      )}
+
+      {initialComment.media && initialComment.media.type === 'video' && (
+        <video controls className='w-full rounded-lg'>
+          <source src={initialComment.media.link} type='video/mp4' />
+          Your browser does not support the video tag.
+        </video>
+      )}
+
       <div className='flex items-center mt-4 space-x-4'>
         <button
           type='button'
@@ -159,7 +196,7 @@ const CommentComponent = (initialComment: Comment) => {
             <span className='mb-2 font-extrabold text-slate-500 mr-3'>.</span>
             <button
               type='button'
-              onClick={() => setIsEditing(!isEditing)}
+              onClick={() => setIsEditing(true)}
               className='flex items-center text-gray-500 hover:underline font-medium'
             >
               Edit

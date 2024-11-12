@@ -112,6 +112,110 @@ export class PostService {
     }
   }
 
+  // async update(
+  //   id: string,
+  //   userId: string,
+  //   updatePostDto: UpdatePostDto,
+  //   file?: Express.Multer.File,
+  // ): Promise<Post> {
+  //   const user = await this.userRepository.findOneBy({ id: userId });
+  //   if (!user) {
+  //     throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+  //   }
+
+  //   const post = await this.postRepository.findOne({
+  //     where: { id },
+  //     relations: ['user', 'media'],
+  //     select: {
+  //       user: {
+  //         id: true,
+  //         name: true,
+  //         email: true,
+  //         avatar: true,
+  //       },
+  //     },
+  //   });
+
+  //   if (!post) {
+  //     throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+  //   }
+
+  //   if (post.user.id !== userId) {
+  //     throw new HttpException(
+  //       'You do not have permission to update this post',
+  //       HttpStatus.FORBIDDEN,
+  //     );
+  //   }
+
+  //   post.title = updatePostDto.title;
+  //   post.description = updatePostDto.description;
+
+  //   try {
+  //     if (file) {
+  //       const media = new Media();
+  //       const type = file.mimetype.split('/')[0];
+
+  //       if (type === 'image') {
+  //         media.type = 'image';
+  //       } else if (type === 'video') {
+  //         media.type = 'video';
+  //       }
+
+  //       const uploadDir = path.join(__dirname, '../../../uploads/post');
+  //       const filePath = path.join(
+  //         uploadDir,
+  //         `${Date.now()}_${file.originalname}`,
+  //       );
+
+  //       if (!fs.existsSync(uploadDir)) {
+  //         fs.mkdirSync(uploadDir, { recursive: true });
+  //       }
+
+  //       fs.writeFileSync(filePath, file.buffer);
+  //       media.link = filePath;
+  //       media.post = post;
+
+  //       const existingMedia = await this.mediaRepository.findOne({
+  //         where: { post: post },
+  //       });
+  //       if (existingMedia) {
+  //         await this.mediaRepository.delete(existingMedia.id);
+  //       }
+  //       await this.mediaRepository.save(media);
+  //       post.media = media;
+  //     }
+
+  //     const savedPost = await this.postRepository.save(post);
+
+  //     const logActivityDto: LogActivityDto = {
+  //       actionType: 'update',
+  //       objectId: post.id,
+  //       objectType: 'post',
+  //       details: `User ${user.name} updated a post.`,
+  //     };
+  //     await this.activityService.logActivity(user, logActivityDto);
+
+  //     return this.postRepository.findOne({
+  //       where: { id: savedPost.id },
+  //       relations: ['user', 'comments', 'media'],
+  //       select: {
+  //         user: {
+  //           id: true,
+  //           name: true,
+  //           email: true,
+  //           tel: true,
+  //           avatar: true,
+  //         },
+  //         comments: true,
+  //       },
+  //     });
+  //   } catch (error) {
+  //     throw new HttpException(
+  //       'Error occurred while updating post: ' + error,
+  //       HttpStatus.BAD_REQUEST,
+  //     );
+  //   }
+  // }
   async update(
     id: string,
     userId: string,
@@ -175,12 +279,21 @@ export class PostService {
         media.link = filePath;
         media.post = post;
 
-        const existingMedia = await this.mediaRepository.findOne({
-          where: { post: post },
+        const existingMediaByLink = await this.mediaRepository.findOne({
+          where: { link: media.link },
         });
-        if (existingMedia) {
-          await this.mediaRepository.delete(existingMedia.id);
+
+        if (existingMediaByLink) {
+          throw new HttpException(
+            'Duplicate media link detected',
+            HttpStatus.BAD_REQUEST,
+          );
         }
+
+        if (post.media) {
+          await this.mediaRepository.delete(post.media.id);
+        }
+
         await this.mediaRepository.save(media);
         post.media = media;
       }
@@ -516,7 +629,7 @@ export class PostService {
 
     const userPosts = await this.postRepository.find({
       where: { user: { id: userId }, group: IsNull() },
-      relations: ['user', 'comments', 'media'],
+      relations: ['user', 'comments', 'media', 'likes'],
       select: {
         user: {
           id: true,
@@ -528,6 +641,12 @@ export class PostService {
         media: {
           id: true,
           link: true,
+          type: true,
+        },
+        likes: {
+          id: true,
+          name: true,
+          avatar: true,
         },
       },
     });
@@ -547,7 +666,7 @@ export class PostService {
           user: { id: In(friendIds) },
           group: IsNull(),
         },
-        relations: ['user', 'comments', 'media'],
+        relations: ['user', 'comments', 'media', 'likes'],
         select: {
           user: {
             id: true,
@@ -559,6 +678,12 @@ export class PostService {
           media: {
             id: true,
             link: true,
+            type: true,
+          },
+          likes: {
+            id: true,
+            name: true,
+            avatar: true,
           },
         },
       });
@@ -572,7 +697,7 @@ export class PostService {
         where: {
           group: { id: In(groupIds) },
         },
-        relations: ['user', 'comments', 'media'],
+        relations: ['user', 'comments', 'media', 'likes'],
         select: {
           user: {
             id: true,
@@ -584,6 +709,12 @@ export class PostService {
           media: {
             id: true,
             link: true,
+            type: true,
+          },
+          likes: {
+            id: true,
+            name: true,
+            avatar: true,
           },
         },
       });

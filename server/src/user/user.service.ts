@@ -4,6 +4,7 @@ import { User } from './entities/user.entity';
 import { DeleteResult, Like, Repository, UpdateResult } from 'typeorm';
 import { ListUserDto } from './dto/list-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import * as bcrypt from 'bcrypt';
 
 import * as fs from 'fs';
 import * as path from 'path';
@@ -90,7 +91,9 @@ export class UserService {
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-
+    if (updateUserDto.password) {
+      updateUserDto.password = await this.hashPassword(updateUserDto.password);
+    }
     return await this.userRepository.update(id, updateUserDto);
   }
 
@@ -144,5 +147,12 @@ export class UserService {
 
     fs.writeFileSync(filePath, file.buffer);
     return filePath;
+  }
+
+  private async hashPassword(password: string): Promise<string> {
+    const saltRounds = 10;
+    const salt = await bcrypt.genSalt(saltRounds);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    return hashedPassword;
   }
 }

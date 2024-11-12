@@ -1,8 +1,12 @@
-import { useState } from 'react'
-import defaultAvatar from '/default_avatar.jpg'
+import { useEffect, useState } from 'react'
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPhotoFilm } from '@fortawesome/free-solid-svg-icons'
-import axios from 'axios'
+import { useDispatch } from 'react-redux'
+import { createPost } from '../../redux/slice/postSlice'
+import { checkJwt } from '../../../utils/auth'
+import { User } from '../../../types'
+import { AppDispatch } from '../../redux/store'
 
 const CreatePost = () => {
   const [isTitleFilled, setIsTitleFilled] = useState(false)
@@ -10,7 +14,17 @@ const CreatePost = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
-  const accessToken = localStorage.getItem('access_token')
+  const dispatch = useDispatch<AppDispatch>()
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
+
+  useEffect(() => {
+    async function fetchCurrentUser() {
+      const response: User | null = await checkJwt()
+      setCurrentUser(response)
+    }
+
+    fetchCurrentUser()
+  }, [])
 
   const handleFileUpload = () => {
     document.getElementById('image')?.click()
@@ -18,36 +32,28 @@ const CreatePost = () => {
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null
-    if (file) {
-      setSelectedFile(file)
-    }
+    setSelectedFile(file)
   }
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
 
+    if (!currentUser) {
+      console.error('User not authenticated')
+      return
+    }
+
     const formData = new FormData()
     formData.append('title', title)
     formData.append('description', description)
+    formData.append('user', JSON.stringify(currentUser))
 
     if (selectedFile) {
-      const fileNameWithExtension = `${title.replace(/\s+/g, '_').toLowerCase()}.${selectedFile.name.split('.').pop()}`
-      formData.append('media', selectedFile, fileNameWithExtension)
+      formData.append('media', selectedFile)
     }
 
-    formData.forEach((value, key) => {
-      console.log(key, value)
-    })
-
     try {
-      const response = await axios.post('http://localhost:3001/api/v1/posts', formData, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'multipart/form-data'
-        }
-      })
-
-      console.log('Post created successfully:', response.data)
+      await dispatch(createPost(formData)).unwrap()
 
       setTitle('')
       setDescription('')
@@ -63,8 +69,16 @@ const CreatePost = () => {
     <div className='bg-white px-4 py-6 rounded-md shadow-md border'>
       <form onSubmit={handleSubmit}>
         <div className='flex mb-10'>
-          <img src={defaultAvatar} alt='' className='w-20 h-20 rounded-full' />
-          <div className='w-full flex flex-col ml-10'>
+          <img
+            src={
+              currentUser?.avatar
+                ? currentUser.avatar.replace('D:\\NLCN\\Web\\server\\', 'http://localhost:3001/').replace(/\\/g, '/')
+                : '/default_avatar.jpg'
+            }
+            alt='User avatar'
+            className='ml-3 w-20 h-20 object-cover rounded-full'
+          />
+          <div className='w-full flex flex-col ml-10 mt-2'>
             <input
               type='text'
               className={`text-xl ${isTitleFilled ? 'text-black' : 'text-slate-400'} focus:text-black focus:outline-none placeholder:text-xl`}
@@ -76,19 +90,18 @@ const CreatePost = () => {
               }}
             />
             <textarea
-              className={`text-md mt-1 ${isContentFilled ? 'text-black' : 'text-slate-400'} focus:text-black focus:outline-none placeholder:text-md `}
+              className={`text-md mt-1 ${isContentFilled ? 'text-black' : 'text-slate-400'} focus:text-black focus:outline-none focus:border-black placeholder:text-md resize-none h-auto min-w-96`}
               placeholder='Share what you think...'
               value={description}
               onChange={(e) => {
                 setDescription(e.target.value)
                 setIsContentFilled(e.target.value !== '')
               }}
-              rows={2}
             />
           </div>
         </div>
         <div className='flex items-center justify-between'>
-          <button type='button' className='text-xl text-gray-500 hover:text-blue-500 ml-3' onClick={handleFileUpload}>
+          <button type='button' className='text-xl text-gray-500 hover:text-blue-500 ml-4' onClick={handleFileUpload}>
             <FontAwesomeIcon icon={faPhotoFilm} /> Photo/ Video
           </button>
           <input
@@ -100,9 +113,9 @@ const CreatePost = () => {
           />
           <button
             type='submit'
-            className='bg-custom-primary text-slate-500 font-semibold rounded-md p-2 mt-2 hover:text-blue-500'
+            className='bg-custom-primary  text-slate-500 font-semibold rounded-md px-4 py-2 mb-2 mr-6 hover:text-blue-500'
           >
-            Create
+            Create Post
           </button>
         </div>
         {selectedFile && <p className='text-sm mt-2'>{selectedFile.name}</p>}

@@ -1,10 +1,12 @@
 import {
   BadRequestException,
+  Body,
   Controller,
   Delete,
   Get,
   Param,
   Post,
+  Put,
   Query,
   Req,
   UploadedFile,
@@ -18,6 +20,7 @@ import { AuthGuard } from '../auth/auth.guard';
 import { ListUserDto } from './dto/list-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { extname } from 'path';
+import { UpdateUserDto } from './dto/update-user.dto';
 @ApiBearerAuth()
 @ApiTags('User')
 @Controller('api/v1/users')
@@ -40,6 +43,12 @@ export class UserController {
   @Get(':id')
   getUserById(@Param('id') id: string): Promise<User> {
     return this.userService.getById(id);
+  }
+
+  @UseGuards(AuthGuard)
+  @Put(':id')
+  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return this.userService.update(id, updateUserDto);
   }
 
   @UseGuards(AuthGuard)

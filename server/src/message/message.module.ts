@@ -16,5 +16,6 @@ import { Activity } from 'src/activity/entities/activity.entity';
   ],
   controllers: [MessageController],
   providers: [MessageService, ActivityService],
+  exports: [MessageService],
 })
 export class MessageModule {}

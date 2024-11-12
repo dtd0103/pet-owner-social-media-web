@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
@@ -62,6 +67,12 @@ export class AuthService {
       throw new HttpException(
         'User email or phone not found',
         HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    if (user && user.status === 0) {
+      throw new UnauthorizedException(
+        'Your account has been banned. Please contact the administrator for confirmation',
       );
     }
 

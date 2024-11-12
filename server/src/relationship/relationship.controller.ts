@@ -36,6 +36,12 @@ export class RelationshipController {
   }
 
   @UseGuards(AuthGuard)
+  @Get('friends/:id')
+  getFriends(@Param('id') id: string) {
+    return this.relationshipService.getFriends(id);
+  }
+
+  @UseGuards(AuthGuard)
   @Get('my-friends')
   getMyFriends(@Req() req: any) {
     return this.relationshipService.getFriends(req.user.id);

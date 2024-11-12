@@ -175,20 +175,19 @@ export class GroupService {
     return groupData;
   }
 
-  async getByUserId(id: string): Promise<Group[]> {
-    const userGroups = await this.groupRepository.find({
-      relations: [],
-      where: {
-        users: {
-          id: id,
-        },
-      },
-      select: {
-        id: true,
-        name: true,
-        avatar: true,
-      },
-    });
+  async getByUserId(id: string): Promise<any[]> {
+    const userGroups = await this.groupRepository
+      .createQueryBuilder('g')
+      .leftJoin('user_group', 'ug', 'ug.GROUP_ID = g.id')
+      .where('ug.USER_ID = :id', { id })
+      .select([
+        'g.id AS groupId',
+        'g.name AS groupName',
+        'g.avatar AS groupAvatar',
+        'ug.role AS role',
+        'ug.joined_at AS joinedAt',
+      ])
+      .getRawMany();
 
     if (!userGroups.length) {
       throw new HttpException(
@@ -197,7 +196,13 @@ export class GroupService {
       );
     }
 
-    return userGroups;
+    return userGroups.map((group) => ({
+      id: group.groupId,
+      name: group.groupName,
+      avatar: group.groupAvatar,
+      role: group.role,
+      joinedAt: group.joinedAt,
+    }));
   }
 
   async create(

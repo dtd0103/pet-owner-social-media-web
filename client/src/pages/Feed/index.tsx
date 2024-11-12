@@ -1,40 +1,26 @@
 import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { Post, User } from '../../../types'
-import { fetchPostsRecommendation } from '../../api'
+import { fetchPosts, createPost } from '../../redux/slice/postSlice'
 import PostComponent from '../../components/Post'
-import { checkJwt } from '../../../utils/auth'
 
-type Response = {
-  data: Post[]
-}
+import { AppDispatch } from '../../redux/store'
 
-const ListPost = () => {
-  const [listPost, setListPost] = useState<Post[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+const ListPost = ({ newPost }: { newPost: Post | null }) => {
+  const dispatch = useDispatch<AppDispatch>()
+  const posts = useSelector((state: any) => state.posts.posts)
+  const loading = useSelector((state: any) => state.posts.loading)
+  const error = useSelector((state: any) => state.posts.error)
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true)
-      try {
-        const response: Response = await fetchPostsRecommendation() 
+    dispatch(fetchPosts())
+  }, [dispatch])
 
-        if (Array.isArray(response) && response.length > 0) {
-          setListPost(response)
-        } else {
-          console.error('No posts found in the response:', response)
-          setListPost([])
-        }
-      } catch (error) {
-        console.error('Error fetching posts:', error)
-        setError('Could not fetch posts.')
-      } finally {
-        setLoading(false)
-      }
+  useEffect(() => {
+    if (newPost) {
+      console.log('New post added:', newPost)
     }
-
-    fetchData()
-  }, [])
+  }, [newPost])
 
   if (loading) {
     return <p>Loading posts...</p>
@@ -44,13 +30,13 @@ const ListPost = () => {
     return <p>{error}</p>
   }
 
-  if (listPost.length === 0) {
+  if (posts.length === 0) {
     return <p>No posts available.</p>
   }
 
   return (
     <div>
-      {listPost.map((post: Post) => (
+      {posts.map((post: Post) => (
         <PostComponent key={post.id} post={post} />
       ))}
     </div>
@@ -58,18 +44,26 @@ const ListPost = () => {
 }
 
 const FeedPage = () => {
-  const [currentUser, setCurrentUser] = useState<User | null>(null)
+  const dispatch = useDispatch<AppDispatch>()
+  const posts = useSelector((state: any) => state.posts.posts || [])
+  const loading = useSelector((state: any) => state.posts.loading)
+  const error = useSelector((state: any) => state.posts.error)
 
   useEffect(() => {
-    async function fetchCurrentUser() {
-      const response: User | null = await checkJwt()
-      setCurrentUser(response)
-    }
+    dispatch(fetchPosts())
+  }, [dispatch])
 
-    fetchCurrentUser()
-  }, [])
+  if (loading) return <p>Loading posts...</p>
+  if (error) return <p>{error}</p>
+  if (posts.length === 0) return <p>No posts available.</p>
 
-  return <ListPost />
+  return (
+    <div>
+      {posts.map((post: Post) => (
+        <PostComponent key={post.id} post={post} />
+      ))}
+    </div>
+  )
 }
 
 export default FeedPage

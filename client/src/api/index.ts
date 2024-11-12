@@ -1,6 +1,4 @@
 import axios from 'axios'
-import { Post } from '../../types'
-import { log } from 'node:console'
 
 const getAuthorizationHeader = () => {
   const token = localStorage.getItem('access_token')
@@ -37,17 +35,7 @@ export async function fetchPostsRecommendation() {
       headers: getAuthorizationHeader()
     })
 
-    console.log(response.data)
-
     const posts = response.data.data
-
-    posts.forEach((post: Post) => {
-      if (post.media) {
-        post.media.link = post.media.link
-          .replace('D:\\NLCN\\Web\\server\\', 'http://localhost:3001/')
-          .replace(/\\/g, '/')
-      }
-    })
 
     return posts
   } catch (error) {
@@ -80,7 +68,7 @@ export async function fetchPostsByUserId(id: string) {
 
 export async function fetchPostsByUserGroups() {
   try {
-    const response = await axios.get('http://localhost:3001/api/v1/posts/user/group', {
+    const response = await axios.get('http://localhost:3001/api/v1/posts/user/groups', {
       headers: getAuthorizationHeader()
     })
     return response.data
@@ -174,17 +162,6 @@ export async function fetchCommentsByPostId(id: string) {
     const response = await axios.get(`http://localhost:3001/api/v1/comments/post/${id}`, {
       headers: getAuthorizationHeader()
     })
-    console.log(response)
-
-    if (Array.isArray(response.data)) {
-      response.data.forEach((post) => {
-        if (post.media) {
-          post.media.link = post.media.link
-            .replace('D:\\NLCN\\Web\\server\\', 'http://localhost:3001/')
-            .replace(/\\/g, '/')
-        }
-      })
-    }
 
     return response.data
   } catch (error) {
@@ -363,6 +340,7 @@ export async function fetchMyGroups() {
     const response = await axios.get('http://localhost:3001/api/v1/groups/user', {
       headers: getAuthorizationHeader()
     })
+    console.log(response)
     return response.data
   } catch (error) {
     console.error('Error occur while fetching my groups:', error)
@@ -468,6 +446,20 @@ export async function fetchSearch(name: string) {
     }
   } catch (error) {
     console.error('Error occurred while fetching search results:', error)
+    throw error
+  }
+}
+
+export async function fetchAllMyConservation() {
+  try {
+    const response = await axios.get(`http://localhost:3001/api/v1/messages/conversations/all`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('access_token')}`
+      }
+    })
+    return response.data
+  } catch (error) {
+    console.error(`Error fetching conversation:`, error)
     throw error
   }
 }

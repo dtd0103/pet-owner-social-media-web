@@ -8,6 +8,7 @@ import { fetchMyProfile } from '../../api'
 import { UserDetail } from '../../../types'
 
 const Header = () => {
+  const navigate = useNavigate()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [userProfile, setUserProfile] = useState<UserDetail | null>(null)
 
@@ -24,9 +25,9 @@ const Header = () => {
     loadData()
   }, [])
 
-  const navigate = useNavigate()
   const handleLogout = () => {
     localStorage.removeItem('access_token')
+    navigate('/log-in')
     window.location.reload()
   }
 
@@ -37,7 +38,7 @@ const Header = () => {
     >
       <div className='flex items-center justify-start col-span-1'>
         <Link to='/' className='flex items-center'>
-          <img src='./logo.svg' alt='logo' className='w-10 h-10' />
+          <img src='/logo.svg' alt='logo' className='w-10 h-10' />
           <h1 className='hidden md:block font-sora text-2xl font-bold text-custom-second mt-0.5 ml-1'>Petiverse.</h1>
         </Link>
         <SearchBar></SearchBar>
@@ -70,7 +71,7 @@ const Header = () => {
       </nav>
       <div className='flex justify-end items-center space-x-3.5'>
         <div className='bg-custom-primary rounded-md w-10 h-10 cursor-pointer hover:opacity-80 mr-0.5'>
-          <Link to='/groups' className='text-custom-grey font-semibold flex items-center'>
+          <Link to='/message' className='text-custom-grey font-semibold flex items-center'>
             <FontAwesomeIcon
               icon={faMessage}
               className='absolute top-custom_header_top right-custom_header_right_2 w-4 h-4 mr-2 text-slate-500'
@@ -78,7 +79,7 @@ const Header = () => {
           </Link>
         </div>
         <div className='bg-custom-primary rounded-md w-10 h-10 cursor-pointer hover:opacity-80 mr-0.5'>
-          <Link to='/groups' className='text-custom-grey font-semibold flex items-center'>
+          <Link to='/friends/friends-request' className='text-custom-grey font-semibold flex items-center'>
             <FontAwesomeIcon
               icon={faAddressBook}
               className='absolute top-7 right-custom_header_right_1 w-4 h-4 mr-2 text-slate-500'
@@ -113,7 +114,9 @@ const Header = () => {
           )}
         </div>
         <div className='flex items-center cursor-pointer'>
-          <img src={userProfile?.avatar ?? defaultAvatar} alt='User' className='w-10 h-10 rounded-md' />
+          <Link to={`/profile/${userProfile?.id}`}>
+            <img src={userProfile?.avatar ?? defaultAvatar} alt='User' className='w-10 h-10 rounded-md object-cover' />
+          </Link>
         </div>
       </div>
     </header>

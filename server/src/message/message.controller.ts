@@ -23,11 +23,13 @@ import { CreateMessageDto } from './dto/create-message.dto';
 export class MessageController {
   constructor(private messageService: MessageService) {}
 
+  @UseGuards(AuthGuard)
   @Get()
   findAll() {
     return this.messageService.findAll();
   }
 
+  @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string): Promise<Message> {
     return this.messageService.findOne(id);
@@ -39,11 +41,13 @@ export class MessageController {
     return this.messageService.getAllUserConversation(req.user.id);
   }
 
+  @UseGuards(AuthGuard)
   @Get('sender/:sender_id')
   findAllBySender(@Param('sender_id') sender_id: string): Promise<Message[]> {
     return this.messageService.findAllBySender(sender_id);
   }
 
+  @UseGuards(AuthGuard)
   @Get('receiver/:receiver_id')
   findAllByReceiver(
     @Param('receiver_id') receiverId: string,

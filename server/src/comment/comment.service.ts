@@ -356,12 +356,21 @@ export class CommentService {
         media.link = filePath;
         media.comment = comment;
 
-        const existingMedia = await this.mediaRepository.findOne({
-          where: { comment: comment },
-        });
-        if (existingMedia) {
-          await this.mediaRepository.delete(existingMedia.id);
+        if (comment.media) {
+          await this.mediaRepository.delete(comment.media.id);
         }
+
+        const existingMediaByLink = await this.mediaRepository.findOne({
+          where: { link: media.link },
+        });
+
+        if (existingMediaByLink) {
+          throw new HttpException(
+            'Duplicate media link detected',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+
         await this.mediaRepository.save(media);
         comment.media = media;
       }
@@ -380,15 +389,8 @@ export class CommentService {
         where: { id: savedComment.id },
         relations: ['user', 'post', 'media'],
         select: {
-          user: {
-            id: true,
-            name: true,
-            email: true,
-            avatar: true,
-          },
-          post: {
-            id: true,
-          },
+          user: { id: true, name: true, email: true, avatar: true },
+          post: { id: true },
         },
       });
     } catch (error) {

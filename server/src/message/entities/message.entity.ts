@@ -12,14 +12,13 @@ import { Media } from 'src/media/entities/media.entity';
 import { Group } from 'src/group/entities/group.entity';
 @Entity('message')
 export class Message {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn('uuid', { name: 'MESSAGE_ID' })
   id: string;
 
   @Column({ type: 'varchar', length: 255, name: 'MESSAGE_CONTENT' })
   content: string;
 
-  @OneToOne(() => Media, (media) => media.message)
-  @JoinColumn({ name: 'MEDIA_ID' })
+  @OneToOne(() => Media, (media) => media.message, { cascade: true })
   media: Media;
 
   @ManyToOne(() => User)

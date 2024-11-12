@@ -21,6 +21,7 @@ import { ReportModule } from './report/report.module';
 import { ActivityModule } from './activity/activity.module';
 import { MessageModule } from './message/message.module';
 import { Message } from './message/entities/message.entity';
+import { AppGateway } from './app.gateway';
 
 @Module({
   imports: [
@@ -50,6 +51,6 @@ import { Message } from './message/entities/message.entity';
     MessageModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, AppGateway],
 })
 export class AppModule {}
