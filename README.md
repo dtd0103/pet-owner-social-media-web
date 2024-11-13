@@ -20,28 +20,7 @@ A social media platform for pet owners to connect, share posts, and interact wit
 - **React**: A JavaScript library for building user interfaces.
 - **TypeScript**: A superset of JavaScript that adds static types.
 - **Redux**: For state management.
-- **Axios**: For making HTTP requests to the backend.
-- **React Router**: For navigation between pages.
-- **date-fns**: For date manipulation and formatting.
-- **Socket.IO**: For WebSocket communication in private messaging.
-- **Tailwind CSS**: A utility-first CSS framework for styling the frontend.
-
-### Backend
-
-- **NestJS**: A framework for building scalable and maintainable server-side applications.
-- **TypeORM**: For database interaction.
-- **MySQL**: Used as the database for storing user, post, and pet data.
-- **JWT (JSON Web Tokens)**: For user authentication and authorization.
-- **Socket.IO**: For WebSocket communication in private messaging.
-
-## Installation
-
-### Backend (NestJS)
-
-1. Clone the repository:
-
-    ```bash
-    git clone https://github.com/your-username/pet-owner-social-media.git
+- **Axios**: Forweb.git
     cd pet-owner-social-media
     ```
 
