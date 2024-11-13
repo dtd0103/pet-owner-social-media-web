@@ -30,7 +30,7 @@ A social media platform for pet owners to connect, share posts, and interact wit
 
 - **NestJS**: A framework for building scalable and maintainable server-side applications.
 - **TypeORM**: For database interaction.
-- **PostgreSQL**: Used as the database for storing user, post, and pet data.
+- **MySQL**: Used as the database for storing user, post, and pet data.
 - **JWT (JSON Web Tokens)**: For user authentication and authorization.
 - **Socket.IO**: For WebSocket communication in private messaging.
 
