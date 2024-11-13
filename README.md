@@ -40,11 +40,11 @@ A social media platform for pet owners to connect, share posts, and interact wit
 
 1.  Clone the repository:
 
-        ```bash
+    ```bash
         git clone https://github.com/your-username/pet-owner-social-media.git
 
         cd pet-owner-social-media
-        ```
+    ```
 
 2.  Navigate to the server directory:
 
