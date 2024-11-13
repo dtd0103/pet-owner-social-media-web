@@ -27,6 +27,16 @@ export class CommentService {
     @Inject(ActivityService) private readonly activityService: ActivityService,
   ) {}
 
+  async getAll() {
+    const comments = await this.commentRepository.find();
+
+    if (!comments.length) {
+      throw new HttpException('No comments found', HttpStatus.NOT_FOUND);
+    }
+
+    return comments;
+  }
+
   async findAll(filterQuery: ListCommentDto) {
     const currentPage = filterQuery.page || 1;
     const itemsPerPage = filterQuery.itemsPerPage || 10;

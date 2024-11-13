@@ -148,7 +148,7 @@ export class RelationshipService {
       .andWhere('r.REL_ID IS NULL')
       .orderBy('RAND()')
       .limit(3)
-      .select(['user.id', 'user.name', 'user.avatar'])
+      .select(['user.id', 'user.name', 'user.avatar', 'user.role'])
       .getMany();
 
     return potentialFriends;

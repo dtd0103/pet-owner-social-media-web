@@ -8,6 +8,7 @@ import { RootState } from '../../redux/store'
 import { addComment, editComment, removeComment } from '../../redux/slice/commentSlice'
 import { useEffect, useState } from 'react'
 import { Comment } from '../../../types'
+import ReportModal from '../ReportModal'
 
 const CommentComponent = ({ initialComment }: { initialComment: Comment }) => {
   const dispatch = useDispatch()
@@ -17,12 +18,22 @@ const CommentComponent = ({ initialComment }: { initialComment: Comment }) => {
   const [editedText, setEditedText] = useState(initialComment.text)
   const [file, setFile] = useState<File | null>(null)
   const [isOwner, setIsOwner] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [isReplying, setIsReplying] = useState(false)
   const [replyText, setReplyText] = useState('')
   const [comment, setComment] = useState<Comment>(initialComment)
 
   const [replyToComment, setReplyToComment] = useState<Comment | null>(null)
+  const [showReportModal, setShowReportModal] = useState(false)
+
+  const handleReportClick = () => {
+    setShowReportModal(true)
+  }
+
+  const closeReportModal = () => {
+    setShowReportModal(false)
+  }
 
   useEffect(() => {
     if (initialComment.replied_comment_id) {
@@ -47,6 +58,10 @@ const CommentComponent = ({ initialComment }: { initialComment: Comment }) => {
       const currentUser = await checkJwt()
       if (currentUser && currentUser.id === initialComment.user.id) {
         setIsOwner(true)
+      }
+
+      if (currentUser?.role === 'Admin') {
+        setIsAdmin(true)
       }
     }
     checkOwner()
@@ -204,7 +219,7 @@ const CommentComponent = ({ initialComment }: { initialComment: Comment }) => {
           </div>
         )}
 
-        {isOwner && (
+        {(isOwner || isAdmin) && (
           <div className='flex items-center'>
             <span className='mb-2 font-extrabold text-slate-500 mr-3'>.</span>
             <button
@@ -213,6 +228,19 @@ const CommentComponent = ({ initialComment }: { initialComment: Comment }) => {
               className='flex items-center text-gray-500 hover:underline font-medium'
             >
               Remove
+            </button>
+          </div>
+        )}
+
+        {!isOwner && (
+          <div className='flex items-center'>
+            <span className='mb-2 font-extrabold text-slate-500 mr-3'>.</span>
+            <button
+              type='button'
+              onClick={handleReportClick}
+              className='flex items-center text-gray-500 hover:underline font-medium'
+            >
+              Report
             </button>
           </div>
         )}
@@ -233,6 +261,7 @@ const CommentComponent = ({ initialComment }: { initialComment: Comment }) => {
           </button>
         </div>
       )}
+      {showReportModal && <ReportModal type='comment' targetId={initialComment.id} onClose={closeReportModal} />}
     </article>
   )
 }

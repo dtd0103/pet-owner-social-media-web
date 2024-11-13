@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { fetchPendingRequests, acceptFriendRequest, rejectFriendRequest } from '../../redux/slice/relationshipSlice'
+import {
+  fetchPendingRequests,
+  acceptFriendRequest,
+  rejectFriendRequest,
+  fetchRecommendedFriends
+} from '../../redux/slice/relationshipSlice'
 import { RootState, AppDispatch } from '../../redux/store'
 import { Link, useLocation } from 'react-router-dom'
 import { checkJwt } from '../../../utils/auth'
@@ -35,6 +40,7 @@ const FriendsRequestPage = () => {
   const handleAcceptRequest = async (friendId: string) => {
     try {
       await dispatch(acceptFriendRequest(friendId)).unwrap()
+      dispatch(fetchRecommendedFriends())
       alert('Friend request accepted.')
     } catch (error) {
       alert('Failed to accept friend request.')
@@ -44,6 +50,10 @@ const FriendsRequestPage = () => {
   const handleRejectRequest = async (friendId: string) => {
     try {
       await dispatch(rejectFriendRequest(friendId)).unwrap()
+      if (userId) {
+        dispatch(fetchPendingRequests(userId))
+      }
+      dispatch(fetchRecommendedFriends())
       alert('Friend request rejected.')
     } catch (error) {
       alert('Failed to reject friend request.')
@@ -66,9 +76,11 @@ const FriendsRequestPage = () => {
                 <img
                   className='w-16 h-16 rounded-full object-cover'
                   src={
-                    relationship.user.avatar
-                      .replace('D:\\NLCN\\Web\\server\\', 'http://localhost:3001/')
-                      .replace(/\\/g, '/') || '/default_avatar.jpg'
+                    relationship.user?.avatar
+                      ? relationship.user.avatar
+                          .replace('D:\\NLCN\\Web\\server\\', 'http://localhost:3001/')
+                          .replace(/\\/g, '/')
+                      : '/default_avatar.jpg'
                   }
                   alt={`${relationship.user.name}'s avatar`}
                 />
@@ -84,13 +96,13 @@ const FriendsRequestPage = () => {
               className='flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none'
               onClick={() => handleAcceptRequest(relationship.user.id)}
             >
-              Accept Request
+              Accept
             </button>
             <button
-              className='flex items-center px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 focus:outline-none'
+              className='flex items-center px-4 py-2 text-sm font-medium text-white bg-slate-500 rounded-lg hover:bg-red-600 focus:outline-none'
               onClick={() => handleRejectRequest(relationship.user.id)}
             >
-              Reject Request
+              Reject
             </button>
           </div>
         ))

@@ -5,6 +5,9 @@ export type User = {
   email?: string
   tel?: string
   password?: string
+  role?: 'Pet Owner' | 'Admin'
+  status?: boolean
+  createAt?: string
 }
 
 export type UserDetail = {
@@ -88,12 +91,12 @@ export type Pet = {
 export type Report = {
   id: string
   reporter: User
-  entity_id: string
-  type: 'Post' | 'Comment' | 'User'
-  reason: string
-  status: 'Pending' | 'Under Review' | 'Resolved' | 'Rejected'
-  created_at: string
-  updated_at: string
+  reportedEntityId: string
+  reportType: 'Post' | 'Comment' | 'User'
+  reportReason: string
+  reportStatus: 'Pending' | 'Under Review' | 'Resolved' | 'Rejected'
+  createAt: string
+  updateAt: string
 }
 
 export type Activity = {

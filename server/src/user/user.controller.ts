@@ -34,6 +34,12 @@ export class UserController {
   }
 
   @UseGuards(AuthGuard)
+  @Get('/all')
+  getAll() {
+    return this.userService.getAll();
+  }
+
+  @UseGuards(AuthGuard)
   @Get('profile')
   getUserProfile(@Req() req: any) {
     return this.userService.getById(req.user.id);

@@ -52,6 +52,16 @@ export class MessageService {
     });
   }
 
+  async getAll() {
+    const messages = await this.messageRepository.find();
+
+    if (!messages.length) {
+      throw new HttpException('No messages found', HttpStatus.NOT_FOUND);
+    }
+
+    return messages;
+  }
+
   async getClient(id: string) {
     return await this.messageRepository.findOne({
       where: { id },

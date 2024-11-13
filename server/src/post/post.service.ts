@@ -25,6 +25,16 @@ export class PostService {
     @Inject(ActivityService) private readonly activityService: ActivityService,
   ) {}
 
+  async getAll() {
+    const posts = await this.postRepository.find();
+
+    if (!posts.length) {
+      throw new HttpException('No posts found', HttpStatus.NOT_FOUND);
+    }
+
+    return posts;
+  }
+
   async create(
     userId: string,
     createPostDto: CreatePostDto,
@@ -370,7 +380,7 @@ export class PostService {
   async findOne(id: string): Promise<Post> {
     const post = await this.postRepository.findOne({
       where: { id },
-      relations: ['user', 'comments', 'media', 'likes'],
+      relations: ['user', 'comments', 'media', 'likes', 'group'],
       select: {
         user: {
           id: true,
@@ -409,8 +419,8 @@ export class PostService {
       order: { createdAt: 'DESC' },
       relations: ['user', 'media', 'comments', 'likes', 'group'],
       where: [
-        { group: IsNull(), description: Like(`%${searchTerm}%`) },
-        { group: IsNull(), title: Like(`%${searchTerm}%`) },
+        { description: Like(`%${searchTerm}%`) },
+        { title: Like(`%${searchTerm}%`) },
       ],
       take: itemsPerPage,
       skip: skip,
@@ -465,7 +475,7 @@ export class PostService {
     return await this.postRepository.find({
       where: { user: { id } },
       order: { createdAt: 'DESC' },
-      relations: ['user', 'comments', 'media', 'likes'],
+      relations: ['user', 'comments', 'media', 'likes', 'group'],
       select: {
         user: {
           id: true,
@@ -629,7 +639,7 @@ export class PostService {
 
     const userPosts = await this.postRepository.find({
       where: { user: { id: userId }, group: IsNull() },
-      relations: ['user', 'comments', 'media', 'likes'],
+      relations: ['user', 'comments', 'media', 'likes', 'group'],
       select: {
         user: {
           id: true,
@@ -666,7 +676,7 @@ export class PostService {
           user: { id: In(friendIds) },
           group: IsNull(),
         },
-        relations: ['user', 'comments', 'media', 'likes'],
+        relations: ['user', 'comments', 'media', 'likes', 'group'],
         select: {
           user: {
             id: true,
@@ -697,7 +707,7 @@ export class PostService {
         where: {
           group: { id: In(groupIds) },
         },
-        relations: ['user', 'comments', 'media', 'likes'],
+        relations: ['user', 'comments', 'media', 'likes', 'group'],
         select: {
           user: {
             id: true,

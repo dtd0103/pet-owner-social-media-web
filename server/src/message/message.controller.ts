@@ -30,6 +30,12 @@ export class MessageController {
   }
 
   @UseGuards(AuthGuard)
+  @Get('/all')
+  getAll() {
+    return this.messageService.getAll();
+  }
+
+  @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string): Promise<Message> {
     return this.messageService.findOne(id);

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Pet, Post, User } from '../../../types'
 import { checkJwt } from '../../../utils/auth'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import PostComponent from '../../components/Post'
 import PetComponent from '../../components/Pet'
 import { fetchPetsByUser } from '../../redux/slice/petSlice'
@@ -13,6 +13,7 @@ import { RootState } from '../../redux/store'
 import { AppDispatch } from '../../redux/store'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons'
+import ReportModal from '../../components/ReportModal'
 import axios from 'axios'
 
 const ProfilePage = () => {
@@ -21,7 +22,7 @@ const ProfilePage = () => {
   const { posts, loading: postsLoading } = useSelector((state: RootState) => state.posts)
   const friends = useSelector((state: RootState) => state.relationships.friends)
   const { user, isLoading: userLoading } = useSelector((state: RootState) => state.users)
-  const userId = window.location.pathname.split('/')[2]
+  const { userId = '' } = useParams<{ userId: string }>()
   const [showEditProfile, setShowEditProfile] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showEditPasswordModal, setShowEditPasswordModal] = useState(false)
@@ -44,12 +45,23 @@ const ProfilePage = () => {
     avatar: user?.avatar,
     background: user?.background
   })
+  const [showReportModal, setShowReportModal] = useState(false)
 
+  const handleReportClick = () => {
+    setShowReportModal(true)
+  }
+
+  const closeReportModal = () => {
+    setShowReportModal(false)
+  }
+  
   useEffect(() => {
-    dispatch(fetchPetsByUser(userId))
-    dispatch(fetchPostsByUser(userId))
-    dispatch(getFriends(userId))
-    dispatch(fetchUser(userId))
+    if (userId) {
+      dispatch(fetchPetsByUser(userId!))
+      dispatch(fetchPostsByUser(userId!))
+      dispatch(getFriends(userId!))
+      dispatch(fetchUser(userId!))
+    }
   }, [dispatch, userId])
 
   useEffect(() => {
@@ -139,7 +151,7 @@ const ProfilePage = () => {
     }
   }
 
-  const handlerSubmit = () => {
+  const handleSubmit = () => {
     dispatch(
       updateUserProfile({
         userId,
@@ -155,7 +167,7 @@ const ProfilePage = () => {
         if (res.meta.requestStatus === 'fulfilled') {
           alert('Edit profile success')
           setShowEditModal(false)
-          dispatch(fetchUser(userId))
+          dispatch(fetchUser(userId!))
           window.location.reload()
         }
       })
@@ -291,7 +303,7 @@ const ProfilePage = () => {
               <button
                 type='button'
                 className='w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-500 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm'
-                onClick={handlerSubmit}
+                onClick={handleSubmit}
               >
                 Edit
               </button>
@@ -309,7 +321,7 @@ const ProfilePage = () => {
     )
   }
 
-  const handlerChangeSubmit = () => {
+  const handleChangeSubmit = () => {
     if (newPassword !== confirmPassword) {
       alert('Confirm password is not match')
       return
@@ -384,7 +396,7 @@ const ProfilePage = () => {
               <button
                 type='button'
                 className='w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-500 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm'
-                onClick={handlerChangeSubmit}
+                onClick={handleChangeSubmit}
               >
                 Change Password
               </button>
@@ -449,12 +461,19 @@ const ProfilePage = () => {
             <p className='ml-8 mt-1 font-bold text-left'>About me</p>
             <p className='ml-8 text-slate-500 text-left'>{user?.quote ?? 'No bio yet.'}</p>
             <div className='flex gap-2 my-5 ml-8'>
-              <Link to={`/message?user=${user?.id}`}>
-                <button className='bg-green-400 px-4 py-2 rounded-md font-semibold text-white'>Chat Now</button>
-              </Link>
-              <Link to={`/`}>
-                <button className='bg-red-400 px-4 py-2 rounded-md font-semibold text-white'>Report</button>
-              </Link>
+              {currentUser && currentUser.id !== userId && (
+                <Link to={`/message?user=${user?.id}`}>
+                  <button className='bg-green-400 px-4 py-2 rounded-md font-semibold text-white'>Chat Now</button>
+                </Link>
+              )}
+              {currentUser && currentUser.id !== userId && (
+                <button
+                  onClick={handleReportClick}
+                  className='bg-red-400 px-4 py-2 rounded-md font-semibold text-white'
+                >
+                  Report
+                </button>
+              )}
             </div>
             <div className='flex gap-4 mt-2 ml-8'>
               <button
@@ -509,6 +528,7 @@ const ProfilePage = () => {
           ))}
         {showEditModal ? editProfileModal() : null}
         {showEditPasswordModal ? editPasswordModal() : null}
+        {showReportModal && <ReportModal type='user' targetId={userId} onClose={closeReportModal} />}
       </div>
       <div></div>
     </div>

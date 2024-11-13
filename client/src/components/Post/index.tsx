@@ -7,14 +7,17 @@ import axios from 'axios'
 import { formatDistanceToNow } from 'date-fns'
 import './Post.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faHeart as farHeart, faComment, faPenToSquare } from '@fortawesome/free-regular-svg-icons'
-import { faHeart as fasHeart, faTrash } from '@fortawesome/free-solid-svg-icons'
+import { faHeart as farHeart, faComment, faPenToSquare, faFlag } from '@fortawesome/free-regular-svg-icons'
+import { faHeart as fasHeart, faTrash, faCaretRight } from '@fortawesome/free-solid-svg-icons'
 import { faPhotoFilm } from '@fortawesome/free-solid-svg-icons'
+
 import defaultAvatar from '/default_avatar.jpg'
+import ReportModal from '../ReportModal'
 
 const Post = ({ post }: { post: PostType }) => {
   const [showComments, setShowComments] = useState(false)
   const [isOwner, setIsOwner] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
   const [liked, setLiked] = useState(false)
   const [totalLike, setTotalLike] = useState(post.likes?.length)
@@ -25,12 +28,23 @@ const Post = ({ post }: { post: PostType }) => {
     media: post.media
   })
   const [selectedMedia, setSelectedMedia] = useState<File | null>(null)
+  const [showReportModal, setShowReportModal] = useState(false)
+
+  const handleReportClick = () => {
+    setShowReportModal(true)
+  }
+
+  const closeReportModal = () => {
+    setShowReportModal(false)
+  }
 
   useEffect(() => {
     const fetchUser = async () => {
       const user = await checkJwt()
-
       if (user) {
+        if (user.role === 'Admin') {
+          setIsAdmin(true)
+        }
         setIsOwner(user.id === post.user.id)
         setLiked(post.likes?.some((u) => u.id === user.id) || false)
       }
@@ -228,14 +242,25 @@ const Post = ({ post }: { post: PostType }) => {
             </Link>
             <div>
               <Link to={`/profile/${post.user.id}`}>
-                <h2 className='text-lg font-semibold text-gray-900'>{post.user.name}</h2>
+                <h2 className='text-lg font-semibold text-gray-900'>
+                  {post.user.name}
+                  {''}
+                  {post.group?.id && (
+                    <span className='text-md  ml-2'>
+                      <FontAwesomeIcon icon={faCaretRight} className='mr-2' />
+                      <Link to={`/groups/${post.group.id}`} className='hover:underline'>
+                        {post.group.name}
+                      </Link>
+                    </span>
+                  )}
+                </h2>
               </Link>
               <span className='text-sm text-slate-400'>
                 {post.createdAt ? formatDistanceToNow(new Date(post.createdAt), { addSuffix: true }) : 'Invalid date'}
               </span>
             </div>
           </div>
-          {isOwner && (
+          {(isOwner || isAdmin) && (
             <button onClick={() => setIsEditPost(true)}>
               <FontAwesomeIcon icon={faPenToSquare} />
               <span className='ml-2 font-semibold'>Edit</span>
@@ -276,9 +301,16 @@ const Post = ({ post }: { post: PostType }) => {
             <FontAwesomeIcon icon={faComment} />
             <span className='ml-2'>Comments</span>
           </button>
+          {!isOwner && (
+            <button onClick={handleReportClick}>
+              <FontAwesomeIcon icon={faFlag} className='ml-3' />
+              <span className='ml-2'>Report</span>
+            </button>
+          )}
         </div>
         {showComments && <ListComment key={post.id} postId={post.id} />}
         {isEditPost ? editPost() : ''}
+        {showReportModal && <ReportModal type='post' targetId={post.id} onClose={closeReportModal} />}
       </div>
     </div>
   )

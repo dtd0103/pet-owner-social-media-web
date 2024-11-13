@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { getFriends, blockFriend, unfriend } from '../../redux/slice/relationshipSlice'
+import { getFriends, blockFriend, unfriend, fetchRecommendedFriends } from '../../redux/slice/relationshipSlice'
 import { RootState, AppDispatch } from '../../redux/store'
 import { useLocation, Link, useMatch } from 'react-router-dom'
 import { checkJwt } from '../../../utils/auth'
@@ -24,6 +24,7 @@ const FriendsPage = () => {
   useEffect(() => {
     const fetchUserId = async () => {
       const user = await checkJwt()
+      console.log(user)
       if (user) {
         setUserId(user.id)
       }
@@ -46,6 +47,10 @@ const FriendsPage = () => {
   const handleUnfriend = async (friendId: string) => {
     try {
       await dispatch(unfriend(friendId))
+      if (userId) {
+        dispatch(getFriends(userId))
+      }
+      dispatch(fetchRecommendedFriends())
       alert('Unfriend request sent successfully')
     } catch (error) {
       alert('Failed to unfriend')
@@ -55,6 +60,9 @@ const FriendsPage = () => {
   const handleBlock = async (friendId: string) => {
     try {
       await dispatch(blockFriend(friendId))
+      if (userId) {
+        dispatch(getFriends(userId))
+      }
       alert('Block request sent successfully')
     } catch (error) {
       alert('Failed to block')

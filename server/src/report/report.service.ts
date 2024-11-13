@@ -21,6 +21,16 @@ export class ReportService {
     private readonly activityService: ActivityService,
   ) {}
 
+  async getAll() {
+    const reports = await this.reportRepository.find();
+
+    if (!reports.length) {
+      throw new HttpException('No reports found', HttpStatus.NOT_FOUND);
+    }
+
+    return reports;
+  }
+
   async findAll(filterQuery: ListReportDto) {
     const currentPage = filterQuery.page || 1;
     const itemsPerPage = filterQuery.itemsPerPage || 10;
@@ -57,7 +67,6 @@ export class ReportService {
       where: { reporter: { id: userId } },
       relations: { reporter: true },
     });
-    console.log(reports);
 
     return reports.map((report) => ({
       id: report.id,
@@ -300,7 +309,7 @@ export class ReportService {
       actionType: 'remove_report',
       objectId: reportId,
       objectType: 'report',
-      details: `User ${report.reporter.name} removed report ${reportId}.`,
+      details: `User ${report.reporter.name} removed a report.`,
     };
     await this.activityService.logActivity(report.reporter, logActivityDto);
 
@@ -327,7 +336,7 @@ export class ReportService {
       actionType: 'handle_report',
       objectId: reportId,
       objectType: 'report',
-      details: `User ${reporter.name} handled report ${reportId} with status ${updateReportDto.status}.`,
+      details: `Admin handled a report from ${reporter.name} with status ${updateReportDto.status}.`,
     };
 
     await this.activityService.logActivity(report.reporter, logActivityDto);

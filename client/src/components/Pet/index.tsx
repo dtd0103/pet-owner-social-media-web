@@ -7,6 +7,7 @@ import { AppDispatch } from '../../redux/store'
 import { format } from 'date-fns'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons'
+import { Link } from 'react-router-dom'
 
 const Pet = (pet: Pet) => {
   const dispatch = useDispatch<AppDispatch>()
@@ -278,6 +279,12 @@ const Pet = (pet: Pet) => {
         </p>
         <p className='text-slate-700 text-base'>
           <strong>Description:</strong> {pet.description}
+        </p>
+        <p className='text-slate-700 text-base'>
+          <strong>Owner:</strong>{' '}
+          <Link to={`/profile/${pet.owner.id}`} className='hover:underline'>
+            {pet.owner.name}
+          </Link>
         </p>
       </div>
       {isEditModalOpen && editPetForm()}

@@ -29,6 +29,16 @@ export class GroupService {
     @Inject(ActivityService) private readonly activityService: ActivityService,
   ) {}
 
+  async getAll() {
+    const groups = await this.groupRepository.find();
+
+    if (!groups.length) {
+      throw new HttpException('No groups found', HttpStatus.NOT_FOUND);
+    }
+
+    return groups;
+  }
+
   async findAll(filterQuery: ListGroupDto) {
     const currentPage = filterQuery.page || 1;
     const itemsPerPage = filterQuery.itemsPerPage || 10;

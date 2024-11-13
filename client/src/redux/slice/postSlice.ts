@@ -5,12 +5,14 @@ import { fetchPostsByUserId, fetchPostsRecommendation } from '../../api'
 
 interface PostsState {
   posts: Post[]
+  post: Post | null
   loading: boolean
   error: string | null
 }
 
 const initialState: PostsState = {
   posts: [],
+  post: null,
   loading: false,
   error: null
 }
@@ -20,7 +22,23 @@ const formatMediaLink = (mediaLink: string) => {
 
 export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
   const response = await fetchPostsRecommendation()
+
   return response
+})
+
+export const fetchPostById = createAsyncThunk('posts/fetchPostById', async (id: string) => {
+  try {
+    const response = await axios.get(`http://localhost:3001/api/v1/posts/${id}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('access_token')}`
+      }
+    })
+    console.log(response.data)
+    return response.data
+  } catch (error) {
+    console.error('Error fetching post:', error)
+    throw error
+  }
 })
 
 export const fetchPostsByUser = createAsyncThunk('posts/fetchPostsByUser', async (userId: string) => {
@@ -105,7 +123,6 @@ const postsSlice = createSlice({
           }
         })
       })
-
       .addCase(fetchPostsByUser.rejected, (state, action) => {
         state.loading = false
         state.error = action.error.message || 'Failed to load posts'
@@ -130,6 +147,20 @@ const postsSlice = createSlice({
       .addCase(fetchPosts.rejected, (state, action) => {
         state.loading = false
         state.error = action.error.message || 'Failed to load posts'
+      })
+      .addCase(fetchPostById.pending, (state) => {
+        state.loading = true
+        state.error = null
+      })
+      .addCase(fetchPostById.fulfilled, (state, action) => {
+        state.loading = false
+        if (action.payload) {
+          state.post = action.payload
+        }
+      })
+      .addCase(fetchPostById.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.error.message || 'Failed to fetch post'
       })
       .addCase(createPost.fulfilled, (state, action) => {
         const newPost = Array.isArray(action.payload) ? action.payload : [action.payload]

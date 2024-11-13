@@ -14,7 +14,7 @@ import { Group } from 'src/group/entities/group.entity';
 import { Message } from 'src/message/entities/message.entity';
 import { Activity } from 'src/activity/entities/activity.entity';
 import { Report } from 'src/report/entities/report.entity';
-import { Notification } from 'src/notification/notification.entity';
+
 @Entity('user')
 export class User {
   @PrimaryGeneratedColumn('uuid', { name: 'USER_ID' })
@@ -76,9 +76,6 @@ export class User {
 
   @OneToMany(() => Report, (report) => report.reporter)
   reports: Report[];
-
-  @OneToMany(() => Notification, (notification) => notification.user)
-  notifications: Notification[];
 
   @ManyToMany(() => Post, (post) => post.likes)
   likedPosts: Post[];

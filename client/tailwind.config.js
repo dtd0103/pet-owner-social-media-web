@@ -8,7 +8,8 @@ export default {
         custom: '22%'
       },
       margin: {
-        custom_left: '23.5rem'
+        custom_left: '23.5rem',
+        custom_top: '72px'
       },
       colors: {
         'custom-primary': 'var(--color-custom-primary)',

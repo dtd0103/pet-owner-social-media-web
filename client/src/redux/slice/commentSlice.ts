@@ -31,6 +31,7 @@ export const fetchCommentsByPostId = createAsyncThunk('comments/fetchCommentsByP
     }
   }))
 })
+
 const commentsSlice = createSlice({
   name: 'comments',
   initialState,

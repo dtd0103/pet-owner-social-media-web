@@ -36,6 +36,12 @@ export class PostController {
   // }
 
   @UseGuards(AuthGuard)
+  @Get('/all')
+  getAll() {
+    return this.postService.getAll();
+  }
+
+  @UseGuards(AuthGuard)
   @Post()
   @UseInterceptors(
     FileInterceptor('media', {

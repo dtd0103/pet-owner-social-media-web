@@ -29,6 +29,12 @@ export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 
   @UseGuards(AuthGuard)
+  @Get('/all')
+  getAll() {
+    return this.groupService.getAll();
+  }
+
+  @UseGuards(AuthGuard)
   @Get()
   findAllGroup(@Query() filterQuery: ListGroupDto) {
     return this.groupService.findAll(filterQuery);

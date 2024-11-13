@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { fetchPendingRequests, cancelFriendRequest } from '../../redux/slice/relationshipSlice'
+import { fetchPendingRequests, cancelFriendRequest, fetchRecommendedFriends } from '../../redux/slice/relationshipSlice'
 import { RootState, AppDispatch } from '../../redux/store'
 import { Link, useLocation } from 'react-router-dom'
 import { checkJwt } from '../../../utils/auth'
+
 import { format } from 'date-fns'
 
 const FriendsSentPage = () => {
@@ -35,8 +36,13 @@ const FriendsSentPage = () => {
 
   const handleCancelRequest = async (friendId: string) => {
     try {
-      await dispatch(cancelFriendRequest(friendId))
+      dispatch(cancelFriendRequest(friendId))
+
       alert('Cancel friend request successfully')
+      if (userId) {
+        dispatch(fetchPendingRequests(userId))
+      }
+      dispatch(fetchRecommendedFriends())
     } catch (error) {
       alert('Failed to cancel friend request')
     }
@@ -69,7 +75,7 @@ const FriendsSentPage = () => {
               </div>
             </div>
             <button
-              className='flex items-center px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 focus:outline-none'
+              className='flex items-center px-4 py-2 text-sm font-medium text-white bg-slate-500 rounded-lg hover:bg-red-600 focus:outline-none'
               onClick={() => handleCancelRequest(relationship.friend.id)}
             >
               Cancel Request

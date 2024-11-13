@@ -4,8 +4,8 @@ import { Group, User } from '../../../types'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchGroups, joinGroup } from '../../redux/slice/groupSlice' 
-import { AppDispatch, RootState } from '../../redux/store' 
+import { fetchGroups, joinGroup } from '../../redux/slice/groupSlice'
+import { AppDispatch, RootState } from '../../redux/store'
 import { checkJwt } from '../../../utils/auth'
 
 const GroupsPage = () => {
@@ -128,11 +128,11 @@ const GroupsPage = () => {
                 <p className='text-lg ml-2 font-bold'>Find Group</p>
               </div>
               <div className='flex '>
-                <label className='m-2 w-[80%] h-12 '>
+                <label className='m-2 w-full h-12 '>
                   <input
                     id='search'
                     type='search'
-                    className='h-9 px-2 text-lg w-full border-2 border-slate-950'
+                    className='h-9 px-2 text-lg w-full border-2 rounded-md border-slate-700'
                     placeholder='Search by group name'
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {

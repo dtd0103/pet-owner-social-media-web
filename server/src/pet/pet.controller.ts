@@ -34,6 +34,12 @@ export class PetController {
   }
 
   @UseGuards(AuthGuard)
+  @Get('/all')
+  getAll() {
+    return this.petService.getAll();
+  }
+
+  @UseGuards(AuthGuard)
   @Get('/user')
   getUserPet(@Req() req: any) {
     return this.petService.getByUserId(req.user.id);

@@ -112,7 +112,7 @@ const LeftSidebar = () => {
               Setting Profile
             </Link>
             <Link
-              to='/'
+              to='/report'
               className='font-semibold text-sm flex items-center p-2 mb-2 rounded-xl hover:bg-slate-100 transition-colors duration-500'
             >
               <img src={reportIcon} alt='' className='w-5 h-5 mr-3' />

@@ -29,6 +29,12 @@ export class CommentController {
   constructor(private commentService: CommentService) {}
 
   @UseGuards(AuthGuard)
+  @Get('/all')
+  getAll() {
+    return this.commentService.getAll();
+  }
+
+  @UseGuards(AuthGuard)
   @Get()
   findAll(@Query() query: ListCommentDto) {
     return this.commentService.findAll(query);

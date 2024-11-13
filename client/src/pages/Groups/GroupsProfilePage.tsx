@@ -92,39 +92,35 @@ const GroupsProfilePage = () => {
 
   const showGroupMembers = () => {
     return (
-      <div className='fixed z-40 inset-0 bg-white overflow-y-auto'>
-        <div className='flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0'>
+      <div className='fixed z-50 inset-0  overflow-y-auto'>
+        <div className='flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center'>
           <div
-            className='fixed inset-0 transition-opacity'
+            className='fixed inset-0 bg-black bg-opacity-60 transition-opacity'
             aria-hidden='true'
             onClick={() => setIsModalOpen(false)}
           ></div>
-          <span className='hidden sm:inline-block sm:align-middle sm:h-screen' aria-hidden='true'>
-            &#8203;
-          </span>
           <div
-            className='  xl:p-4 inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full'
+            className='p-4 bg-white inline-block rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 align-middle sm:max-w-lg sm:w-full'
             role='dialog'
             aria-modal='true'
             aria-labelledby='modal-headline'
           >
-            <div className='flex justify-between'>
-              <h1 className='text-lg font-medium text-gray-900'>{group?.name} members</h1>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className='bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full'
-              >
-                Close
+            <div className='flex justify-between '>
+              <h1 className='text-lg font-semibold text-gray-900'>{group?.name} Members</h1>
+              <button onClick={() => setIsModalOpen(false)} className=' mr-2 font-semibold'>
+                X
               </button>
             </div>
             {group?.users?.map((user) => (
-              <div className='flex justify-between border rounded m-2 p-2 max '>
+              <div className='flex justify-between border rounded m-2 p-4 max '>
                 <div className='flex items-center'>
-                  <img className='w-20 h-20 rounded-full object-cover' src={user.avatar ? user.avatar : ''} alt='' />
-                  <div className='ml-2'>
-                    <p className='text-sm font-medium text-gray-900'>{user.name}</p>
-                    <p className='text-sm font-medium text-gray-900'>{user.role}</p>
-                  </div>
+                  <Link to={`/profile/${user.id}`}>
+                    <img className='w-16 h-16 rounded-full object-cover' src={user.avatar ? user.avatar : ''} alt='' />
+                  </Link>
+                  <Link to={`/profile/${user.id}`} className='ml-4'>
+                    <p className='font-semibold text-gray-900'>{user.name}</p>
+                    <p className='font-medium text-sm text-slate-500 '>Role: {user.role}</p>
+                  </Link>
                 </div>
               </div>
             ))}
@@ -139,36 +135,34 @@ const GroupsProfilePage = () => {
 
     if (group) {
       return (
-        <div className='flex flex-col p-5'>
+        <div className='flex flex-col items-center p-5 bg-white rounded-lg'>
           <img
-            className=' w-32 h-32 rounded-full mx-auto object-cover'
-            src={group.avatar && group.avatar != 'null' ? group.avatar : ''}
-            alt=''
+            className='w-32 h-32 rounded-full object-cover mb-4 border-4 border-gray-300'
+            src={group.avatar && group.avatar !== 'null' ? group.avatar : ''}
+            alt={group.name}
           />
-          <div className=''>
-            {isMember ? (
-              <button
-                className='bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full float-right'
-                onClick={() => handleLeaveGroup(group.id)}
-              >
-                Leave
-              </button>
-            ) : (
-              <button
-                className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full float-right'
-                onClick={() => handleJoinGroup(group.id)}
-              >
-                Join
-              </button>
-            )}
+          <p className='text-2xl font-semibold text-gray-900 text-center mb-2'>{group.name}</p>
+
+          <div className='w-full flex justify-between items-center'>
+            <button
+              className={`text-white font-semibold py-2 px-6 rounded-full transition-all duration-300 ${
+                isMember ? 'bg-red-500 hover:bg-red-700' : 'bg-green-500 hover:bg-green-700'
+              }`}
+              onClick={() => (isMember ? handleLeaveGroup(group.id) : handleJoinGroup(group.id))}
+            >
+              {isMember ? 'Leave' : 'Join'}
+            </button>
+            <button
+              className='text-gray-500 font-medium text-sm hover:text-gray-700 transition-all'
+              onClick={() => setIsModalOpen(true)}
+            >
+              {group.users?.length || 0} members
+            </button>
           </div>
-          <p className='text-lg font-medium text-gray-900 mx-auto'>{group.name}</p>
-          <button onClick={() => setIsModalOpen(true)}>
-            <p className='text-md font-medium text-gray-900 m-2'>{group.users?.length || 0} members</p>
-          </button>
+
           {isMember && (
             <button
-              className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full'
+              className='mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full w-full'
               onClick={() => setIsPopupCreatePostOpen(true)}
             >
               Create Post

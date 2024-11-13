@@ -9,7 +9,8 @@ import axios from 'axios'
 
 const ListComment = ({ postId }: { postId: string }) => {
   const dispatch = useDispatch<AppDispatch>()
-  const { comments, loading, error } = useSelector((state: RootState) => state.comments)
+  const allComments = useSelector((state: RootState) => state.comments.comments)
+  const comments = allComments.filter((comment) => comment.post.id === postId)
   const [newComment, setNewComment] = useState('')
   const accessToken = localStorage.getItem('access_token')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -103,13 +104,9 @@ const ListComment = ({ postId }: { postId: string }) => {
             Post comment
           </button>
         </form>
-        {loading ? (
-          <p>Loading...</p>
-        ) : error ? (
-          <p>{error}</p>
-        ) : (
-          comments.map((comment) => <CommentComponent key={comment.id} initialComment={comment} />)
-        )}
+        {comments.map((comment) => (
+          <CommentComponent key={comment.id} initialComment={comment} />
+        ))}
       </div>
     </section>
   )

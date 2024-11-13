@@ -15,6 +15,16 @@ export class UserService {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
+  async getAll() {
+    const users = await this.userRepository.find();
+
+    if (!users.length) {
+      throw new HttpException('No users found', HttpStatus.NOT_FOUND);
+    }
+
+    return users;
+  }
+
   async findAll(filterQuery: ListUserDto) {
     const currentPage = filterQuery.page || 1;
     const itemsPerPage = filterQuery.itemsPerPage || 10;

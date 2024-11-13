@@ -6,7 +6,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { AppDispatch, RootState } from '../../redux/store'
 import { useDispatch, useSelector } from 'react-redux'
 import { checkJwt } from '../../../utils/auth'
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 
 const RightSideBar = () => {
   const dispatch = useDispatch<AppDispatch>()
@@ -14,6 +14,8 @@ const RightSideBar = () => {
   const { recommendedFriends, loading } = useSelector((state: RootState) => state.relationships)
   const [sentRequests, setSentRequests] = useState<string[]>([])
   const [currentUser, setCurrentUser] = useState<User | null>(null)
+
+  const { userId } = useParams<{ userId: string }>()
 
   useEffect(() => {
     async function fetchCurrentUser() {
@@ -42,12 +44,17 @@ const RightSideBar = () => {
       }
     }
     fetchActivities()
-  }, [])
+  }, [activities])
+
+  useEffect(() => {}, [recommendedFriends, sentRequests, activities])
 
   const handleSendFriendRequest = async (userId: string) => {
     try {
       await dispatch(sendFriendRequest(userId)).unwrap()
-      setSentRequests([...sentRequests, userId])
+
+      setSentRequests((prev) => [...prev, userId])
+
+      dispatch(fetchRecommendedFriends())
     } catch (error) {
       console.error('Failed to send friend request:', error)
     }
@@ -74,13 +81,13 @@ const RightSideBar = () => {
                     </Link>
                     <div className='ml-4 flex-grow'>
                       <p className='font-semibold'>{user.name ?? 'Default Name'}</p>
-                      <p className='text-slate-400 text-xs'>Pet Owner</p>
+                      <p className='text-slate-400 text-xs'>{user.role}</p>
                     </div>
                     <button
                       onClick={() => handleSendFriendRequest(user.id)}
                       className='w-11 h-11 ml-4 bg-custom-blue rounded-full text-2xl text-blue-500 flex justify-center items-center flex-shrink-0'
                     >
-                      {sentRequests.includes(user.id) ? '✔' : '+'}
+                      +
                     </button>
                   </li>
                 )

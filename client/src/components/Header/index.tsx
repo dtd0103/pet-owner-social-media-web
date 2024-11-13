@@ -6,11 +6,24 @@ import SearchBar from './SearchBar'
 import { useEffect, useState } from 'react'
 import { fetchMyProfile } from '../../api'
 import { UserDetail } from '../../../types'
+import { checkJwt } from '../../../utils/auth'
 
 const Header = () => {
   const navigate = useNavigate()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [userProfile, setUserProfile] = useState<UserDetail | null>(null)
+  const [isAdmin, setIsAdmin] = useState(false)
+
+  useEffect(() => {
+    const checkOwner = async () => {
+      const currentUser = await checkJwt()
+
+      if (currentUser?.role === 'Admin') {
+        setIsAdmin(true)
+      }
+    }
+    checkOwner()
+  }, [])
 
   useEffect(() => {
     const loadData = async () => {
@@ -101,9 +114,14 @@ const Header = () => {
 
           {isDropdownOpen && (
             <div className='absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10'>
-              <Link to='/edit-profile' className='block px-4 py-2 text-gray-800 hover:bg-gray-100'>
+              <Link to={`profile/${userProfile?.id}`} className='block px-4 py-2 text-gray-800 hover:bg-gray-100'>
                 Edit Your Profile
               </Link>
+              {isAdmin && (
+                <Link to='/admin' className='block px-4 py-2 text-gray-800 hover:bg-gray-100'>
+                  Admin DashBoard
+                </Link>
+              )}
               <button
                 onClick={handleLogout}
                 className='block px-4 py-2 text-gray-800 hover:bg-gray-100 w-full text-left'

@@ -6,6 +6,8 @@ import userReducer from '../redux/slice/userSlice'
 import relationshipReducer from '../redux/slice/relationshipSlice'
 import messageReducer from '../redux/slice/messageSlice'
 import groupReducer from '../redux/slice/groupSlice'
+import reportReducer from '../redux/slice/reportSlice'
+import adminReducer from '../redux/slice/adminSlice'
 const store = configureStore({
   reducer: {
     comments: commentsReducer,
@@ -14,7 +16,9 @@ const store = configureStore({
     users: userReducer,
     relationships: relationshipReducer,
     messages: messageReducer,
-    groups: groupReducer
+    groups: groupReducer,
+    reports: reportReducer,
+    admin: adminReducer
   }
 })
 

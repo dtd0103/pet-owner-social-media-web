@@ -75,6 +75,16 @@ export class PetService {
     };
   }
 
+  async getAll(): Promise<Pet[]> {
+    const pets = await this.petRepository.find();
+
+    if (!pets.length) {
+      throw new HttpException('No pets found', HttpStatus.NOT_FOUND);
+    }
+
+    return pets;
+  }
+
   async findOne(id: string): Promise<Pet> {
     const pet = await this.petRepository.findOne({ where: { id } });
 

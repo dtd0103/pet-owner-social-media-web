@@ -228,7 +228,6 @@ const relationshipsSlice = createSlice({
         state.friends.push(action.payload)
       })
       .addCase(unfriend.fulfilled, (state, action) => {
-        console.log('Đã gọi unfriend, payload:', action.payload) // Kiểm tra payload
         state.friends = state.friends.filter((rel) => rel.friend.id !== action.payload.id)
       })
   }
