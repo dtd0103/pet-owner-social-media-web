@@ -8,7 +8,6 @@ import {
   UseGuards,
   Get,
   UseInterceptors,
-  UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { extname } from 'path';
@@ -126,9 +125,8 @@ export class MessageController {
   create(
     @Req() req: any,
     @Body() createMessageDto: CreateMessageDto,
-    @UploadedFile() file: Express.Multer.File,
   ): Promise<Message> {
-    return this.messageService.create(req.user.id, createMessageDto, file);
+    return this.messageService.create(req.user.id, createMessageDto);
   }
 
   @UseGuards(AuthGuard)

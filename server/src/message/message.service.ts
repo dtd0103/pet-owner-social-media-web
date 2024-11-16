@@ -400,7 +400,6 @@ export class MessageService {
   async create(
     senderId: string,
     createMessageDto: CreateMessageDto,
-    file?: Express.Multer.File,
   ): Promise<Message> {
     const sender = await this.userRepository.findOneBy({ id: senderId });
     if (!sender) {
@@ -435,24 +434,12 @@ export class MessageService {
     }
 
     try {
-      if (file) {
-        const media = new Media();
-        const type = file.mimetype.split('/')[0];
-
-        if (type === 'image' || type === 'video') {
-          media.type = type;
-          media.link = await this.saveMediaFile(file);
-          await this.mediaRepository.save(media);
-          message.media = media;
-        }
-      }
-
       const savedMessage = await this.messageRepository.save(message);
       await this.logMessageActivity(sender, savedMessage);
 
       return this.messageRepository.findOne({
         where: { id: savedMessage.id },
-        relations: ['sender', 'receiver', 'group', 'media'],
+        relations: ['sender', 'receiver', 'group'],
       });
     } catch (error) {
       throw new HttpException(

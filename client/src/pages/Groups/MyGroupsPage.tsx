@@ -138,14 +138,14 @@ const MyGroupsPage = () => {
           <div className='bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse'>
             <button
               type='button'
-              className='w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-500 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm'
+              className='w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-500 text-base text-white hover:bg-blue-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm'
               onClick={handleSubmit}
             >
               Add
             </button>
             <button
               type='button'
-              className='mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-gray-50 text-base font-medium text-gray-700 hover:bg-gray-100 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm'
+              className='mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-gray-50 text-base text-gray-700 hover:bg-gray-100 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm'
               onClick={() => setIsModalOpen(false)}
             >
               Cancel
@@ -223,14 +223,14 @@ const MyGroupsPage = () => {
             <div className='bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse'>
               <button
                 type='button'
-                className='w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-500 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm'
+                className='focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800'
                 onClick={() => selectedGroupId && handleEditSubmit(selectedGroupId)}
               >
                 Update
               </button>
               <button
                 type='button'
-                className='mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-gray-50 text-base font-medium text-gray-700 hover:bg-gray-100 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm'
+                className='text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700'
                 onClick={() => setIsEditModalOpen(false)}
               >
                 Cancel
@@ -259,20 +259,22 @@ const MyGroupsPage = () => {
               </div>
             </Link>
           </div>
-          <div className='flex items-center'>
+          <div className='flex items-center mt-3'>
             <Link to={`/groups/${userGroup.id}`}>
-              <button className='text-blue-500 px-3 py-1 border rounded'>View</button>
+              <button className='text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 font-semibold hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2'>
+                View
+              </button>
             </Link>
             {userGroup.role === 'Admin' && (
               <>
                 <button
-                  className='ml-2 text-yellow-500 px-3 py-1 border rounded'
+                  className='text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 font-semibold hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2'
                   onClick={() => handleEditClick(userGroup.id)}
                 >
                   Edit
                 </button>
                 <button
-                  className='ml-2 text-red-500 px-3 py-1 border rounded'
+                  className='text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 font-semibold hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2'
                   onClick={() => handleDeleteGroup(userGroup.id)}
                 >
                   Delete
@@ -326,7 +328,7 @@ const MyGroupsPage = () => {
 
         <div>
           <button
-            className='px-4 py-2 font-semibold text-center bg-white  border-2 border-blue-500 hover:bg-blue-400 rounded-md'
+            className='text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2'
             onClick={() => setIsModalOpen(true)}
           >
             Create New Group

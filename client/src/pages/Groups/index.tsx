@@ -60,7 +60,7 @@ const GroupsPage = () => {
             <div className='flex items-center mr-2'>
               {group?.users?.find((g) => g.id === currentUser?.id) ? (
                 <button
-                  className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
+                  className='text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-semibold rounded-lg text-sm px-5 py-2.5 text-center me-2'
                   onClick={() => {
                     window.location.href = `/groups/${group.id}`
                   }}
@@ -69,7 +69,7 @@ const GroupsPage = () => {
                 </button>
               ) : (
                 <button
-                  className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded'
+                  className='text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 font-semibold hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 rounded-lg text-sm px-5 py-2.5 text-center me-2'
                   onClick={() => {
                     handleJoinGroup(group.id)
                   }}

@@ -75,7 +75,7 @@ const FriendsSentPage = () => {
               </div>
             </div>
             <button
-              className='flex items-center px-4 py-2 text-sm font-medium text-white bg-slate-500 rounded-lg hover:bg-red-600 focus:outline-none'
+              className='text-white ml-48 bg-gradient-to-r from-neutral-500 to-neutral-800 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-gray-400 dark:focus:ring-neutral-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2'
               onClick={() => handleCancelRequest(relationship.friend.id)}
             >
               Cancel Request

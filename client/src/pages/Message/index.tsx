@@ -16,6 +16,8 @@ import {
 import { AppDispatch, RootState } from '../../redux/store'
 import { getFriends } from '../../redux/slice/relationshipSlice'
 import { formatDistanceToNow } from 'date-fns'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faMessage } from '@fortawesome/free-solid-svg-icons'
 
 const MessagePage = () => {
   const dispatch = useDispatch<AppDispatch>()
@@ -94,29 +96,19 @@ const MessagePage = () => {
       return
     }
     const messageInput = document.getElementById('message') as HTMLInputElement
-    const mediaInput = document.getElementById('media-message') as HTMLInputElement
+
     const type = search.split('=')[0].replace('?', '')
     const id = search.split('=')[1]
 
     const messageContent = messageInput.value
 
-    let media = null
-    if (mediaInput && mediaInput.files && mediaInput.files.length > 0) {
-      const mediaFile = mediaInput.files[0]
-      media = mediaFile
-    }
-
-    console.log(media)
-
     socket.current.emit('sendMessage', {
       senderId: currentUser?.id,
       receiverId: type === 'user' ? id : null,
-      content: messageContent,
-      media: media
+      content: messageContent
     })
 
     messageInput.value = ''
-    if (mediaInput) mediaInput.value = ''
   }
 
   return (
@@ -219,8 +211,12 @@ const MessagePage = () => {
                   className='w-full px-2 py-2 text-sm border border-grey-light rounded-lg'
                   placeholder='Type a message...'
                 />
-                <button onClick={handleSend} className='px-4 py-2 ml-2 text-white bg-blue-500 rounded-lg'>
+                <button
+                  onClick={handleSend}
+                  className='flex items-center ml-2 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800'
+                >
                   Send
+                  <FontAwesomeIcon icon={faMessage} className='ml-2' />
                 </button>
               </div>
             </div>

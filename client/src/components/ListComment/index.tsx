@@ -99,7 +99,7 @@ const ListComment = ({ postId }: { postId: string }) => {
           />
           <button
             type='submit'
-            className='block mt-3 py-2.5 px-3 text-xs font-medium text-center bg-blue-400 rounded-lg'
+            className='text-white block mt-2 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2'
           >
             Post comment
           </button>

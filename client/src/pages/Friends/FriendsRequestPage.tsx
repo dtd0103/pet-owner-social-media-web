@@ -93,13 +93,13 @@ const FriendsRequestPage = () => {
               </div>
             </div>
             <button
-              className='flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none'
+              className='flex ml-48 text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2'
               onClick={() => handleAcceptRequest(relationship.user.id)}
             >
               Accept
             </button>
             <button
-              className='flex items-center px-4 py-2 text-sm font-medium text-white bg-slate-500 rounded-lg hover:bg-red-600 focus:outline-none'
+              className='text-white bg-gradient-to-r from-neutral-500 to-neutral-800 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-gray-400 dark:focus:ring-neutral-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2'
               onClick={() => handleRejectRequest(relationship.user.id)}
             >
               Reject

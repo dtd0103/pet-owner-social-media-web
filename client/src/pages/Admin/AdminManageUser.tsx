@@ -178,7 +178,7 @@ const AdminManageUserPage: React.FC = () => {
                   <div className='flex gap-2 justify-center'>
                     <button
                       onClick={() => handleChangeUserRole(user.id, user.role === 'Admin' ? 'Pet Owner' : 'Admin')}
-                      className='bg-yellow-500 text-white p-2 rounded-md hover:bg-yellow-600'
+                      className='text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2'
                     >
                       Role
                     </button>
@@ -192,14 +192,14 @@ const AdminManageUserPage: React.FC = () => {
                     ) : (
                       <button
                         onClick={() => handleBanUser(user.id)}
-                        className='bg-red-500 text-white p-2 rounded-md hover:bg-red-600'
+                        className='text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2'
                       >
                         Ban
                       </button>
                     )}
                     <button
                       onClick={() => handleDeleteUser(user.id)}
-                      className='bg-gray-500 text-white p-2 rounded-md hover:bg-gray-600'
+                      className='text-white bg-gradient-to-r from-neutral-500 to-neutral-800 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-gray-400 dark:focus:ring-neutral-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2'
                     >
                       Delete
                     </button>

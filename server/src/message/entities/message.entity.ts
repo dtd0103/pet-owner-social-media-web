@@ -3,12 +3,11 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToOne,
   PrimaryGeneratedColumn,
   CreateDateColumn,
 } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
-import { Media } from 'src/media/entities/media.entity';
+
 import { Group } from 'src/group/entities/group.entity';
 @Entity('message')
 export class Message {
@@ -17,9 +16,6 @@ export class Message {
 
   @Column({ type: 'varchar', length: 255, name: 'MESSAGE_CONTENT' })
   content: string;
-
-  @OneToOne(() => Media, (media) => media.message, { cascade: true })
-  media: Media;
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'SENDER_ID' })

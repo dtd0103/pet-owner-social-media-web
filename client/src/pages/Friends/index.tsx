@@ -98,14 +98,14 @@ const FriendsPage = () => {
           </div>
 
           <button
-            className='flex items-center px-4 py-2 ml-48 text-sm font-medium text-white bg-slate-800 rounded-lg hover:bg-red-600 focus:outline-none'
+            className='text-white ml-48 bg-gradient-to-r from-neutral-500 to-neutral-800 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-gray-400 dark:focus:ring-neutral-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2'
             onClick={() => handleBlock(relationship.friend.id)}
           >
             Block
           </button>
 
           <button
-            className='flex items-center px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 focus:outline-none'
+            className='text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2'
             onClick={() => handleUnfriend(relationship.friend.id)}
           >
             Unfriend

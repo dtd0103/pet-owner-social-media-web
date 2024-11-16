@@ -54,7 +54,7 @@ const ProfilePage = () => {
   const closeReportModal = () => {
     setShowReportModal(false)
   }
-  
+
   useEffect(() => {
     if (userId) {
       dispatch(fetchPetsByUser(userId!))
@@ -463,13 +463,15 @@ const ProfilePage = () => {
             <div className='flex gap-2 my-5 ml-8'>
               {currentUser && currentUser.id !== userId && (
                 <Link to={`/message?user=${user?.id}`}>
-                  <button className='bg-green-400 px-4 py-2 rounded-md font-semibold text-white'>Chat Now</button>
+                  <button className='text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-semibold rounded-lg px-5 py-2.5 text-center me-2'>
+                    Chat Now
+                  </button>
                 </Link>
               )}
               {currentUser && currentUser.id !== userId && (
                 <button
                   onClick={handleReportClick}
-                  className='bg-red-400 px-4 py-2 rounded-md font-semibold text-white'
+                  className='text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-semibold rounded-lg px-5 py-2.5 text-center me-2 '
                 >
                   Report
                 </button>

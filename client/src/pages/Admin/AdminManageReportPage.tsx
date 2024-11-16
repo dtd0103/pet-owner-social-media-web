@@ -80,20 +80,17 @@ const AdminManageReportPage: React.FC = () => {
                 <td className='p-4'>
                   {report.reportType === 'Post' && (
                     <Link to={`/posts/${report.reportedEntityId}`} className='text-blue-500 hover:underline'>
-                      View Post
+                      View
                     </Link>
                   )}
                   {report.reportType === 'User' && (
                     <Link to={`/profile/${report.reportedEntityId}`} className='text-blue-500 hover:underline'>
-                      View User
+                      View
                     </Link>
                   )}
                   {report.reportType === 'Comment' && (
-                    <button
-                      onClick={() => fetchCommentDetails(report.reportedEntityId)}
-                      className='text-blue-500 hover:underline'
-                    >
-                      View Comment
+                    <button onClick={() => fetchCommentDetails(report.reportedEntityId)} className='text-blue-500 '>
+                      View
                     </button>
                   )}
                 </td>
@@ -101,25 +98,25 @@ const AdminManageReportPage: React.FC = () => {
                   <div className='flex gap-2'>
                     <button
                       onClick={() => handleProcess(report.id, 'Pending')}
-                      className='bg-yellow-500 text-white p-2 rounded-md hover:bg-yellow-600'
+                      className='text-gray-900 bg-gradient-to-r from-lime-200 via-lime-400 to-lime-500 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-lime-300 dark:focus:ring-lime-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 '
                     >
                       Pending
                     </button>
                     <button
                       onClick={() => handleProcess(report.id, 'Under Review')}
-                      className='bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600'
+                      className='text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2'
                     >
-                      Under Review
+                      Review
                     </button>
                     <button
                       onClick={() => handleProcess(report.id, 'Resolved')}
-                      className='bg-green-500 text-white p-2 rounded-md hover:bg-green-600'
+                      className='text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2'
                     >
                       Resolved
                     </button>
                     <button
                       onClick={() => handleProcess(report.id, 'Rejected')}
-                      className='bg-red-500 text-white p-2 rounded-md hover:bg-red-600'
+                      className='text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2'
                     >
                       Reject
                     </button>

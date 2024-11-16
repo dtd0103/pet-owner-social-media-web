@@ -120,7 +120,6 @@ export type Relationship = {
 export type Message = {
   id: string
   content: string
-  media?: Media
   sender: User
   receiver: User
   group?: Group

@@ -220,7 +220,7 @@ const MyPetsPage = () => {
           <h1 className='text-2xl text-center font-bold'>My Pets</h1>
         </div>
         <button
-          className='bg-blue-400 text-white text-sm font-bold px-2 py-1 rounded'
+          className='text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-semibold rounded-lg px-5 py-2.5 text-center me-2'
           onClick={() => setIsModalOpen(true)}
         >
           Add New Pet

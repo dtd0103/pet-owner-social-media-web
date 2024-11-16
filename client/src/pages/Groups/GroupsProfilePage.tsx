@@ -8,6 +8,8 @@ import { checkJwt } from '../../../utils/auth'
 import { AppDispatch, RootState } from '../../redux/store'
 import { useDispatch, useSelector } from 'react-redux'
 import axios from 'axios'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faArrowRightFromBracket, faHandPointLeft, faPlus } from '@fortawesome/free-solid-svg-icons'
 
 const GroupsProfilePage = () => {
   const dispatch = useDispatch<AppDispatch>()
@@ -135,23 +137,14 @@ const GroupsProfilePage = () => {
 
     if (group) {
       return (
-        <div className='flex flex-col items-center p-5 bg-white rounded-lg'>
-          <img
-            className='w-32 h-32 rounded-full object-cover mb-4 border-4 border-gray-300'
-            src={group.avatar && group.avatar !== 'null' ? group.avatar : ''}
-            alt={group.name}
-          />
-          <p className='text-2xl font-semibold text-gray-900 text-center mb-2'>{group.name}</p>
-
-          <div className='w-full flex justify-between items-center'>
-            <button
-              className={`text-white font-semibold py-2 px-6 rounded-full transition-all duration-300 ${
-                isMember ? 'bg-red-500 hover:bg-red-700' : 'bg-green-500 hover:bg-green-700'
-              }`}
-              onClick={() => (isMember ? handleLeaveGroup(group.id) : handleJoinGroup(group.id))}
-            >
-              {isMember ? 'Leave' : 'Join'}
-            </button>
+        <>
+          <div className='flex flex-col items-center p-5 bg-white rounded-lg'>
+            <img
+              className='w-32 h-32 rounded-full object-cover mb-4 border-4 border-gray-300'
+              src={group.avatar && group.avatar !== 'null' ? group.avatar : ''}
+              alt={group.name}
+            />
+            <p className='text-2xl font-semibold text-gray-900 text-center mb-2'>{group.name}</p>
             <button
               className='text-gray-500 font-medium text-sm hover:text-gray-700 transition-all'
               onClick={() => setIsModalOpen(true)}
@@ -159,16 +152,35 @@ const GroupsProfilePage = () => {
               {group.users?.length || 0} members
             </button>
           </div>
-
-          {isMember && (
-            <button
-              className='mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full w-full'
-              onClick={() => setIsPopupCreatePostOpen(true)}
-            >
-              Create Post
-            </button>
-          )}
-        </div>
+          <div className='ml-11'>
+            <div className='flex items-center space-x-2'>
+              {isMember && (
+                <button
+                  className='text-white bg-gradient-to-r from-cyan-400 via-cyan-500 to-cyan-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-semibold rounded-lg px-5 py-2.5 text-center me-2'
+                  onClick={() => setIsPopupCreatePostOpen(true)}
+                >
+                  New Post
+                  <FontAwesomeIcon icon={faPlus} className='ml-2' />
+                </button>
+              )}
+              <button
+                className={`text-white  hover:bg-gradient-to-br focus:ring-4 focus:outline-none font-semibold  rounded-lg px-5 py-2.5 text-center me-2 ${
+                  isMember
+                    ? 'bg-gradient-to-r from-red-400 via-red-500 to-red-600 focus:ring-red-300 dark:focus:ring-red-800'
+                    : 'bg-gradient-to-r from-green-400 via-green-500 to-green-600 focus:ring-green-300 dark:focus:ring-green-800'
+                }`}
+                onClick={() => (isMember ? handleLeaveGroup(group.id) : handleJoinGroup(group.id))}
+              >
+                {isMember ? 'Leave' : 'Join'}
+                {isMember ? (
+                  <FontAwesomeIcon icon={faArrowRightFromBracket} className='ml-2' />
+                ) : (
+                  <FontAwesomeIcon icon={faHandPointLeft} className='ml-2' />
+                )}
+              </button>
+            </div>
+          </div>
+        </>
       )
     }
   }
@@ -254,7 +266,7 @@ const GroupsProfilePage = () => {
     <div>
       {isModalOpen && showGroupMembers()}
       {isPopupCreatePostOpen && showPopupCreatePost()}
-      <div className='container mx-auto'>
+      <div className='mx-auto'>
         <div className='flex flex-col bg-white rounded-md shadow-md'>
           {showGroupInfo()}
           <div className='m-4'>
@@ -274,7 +286,6 @@ const GroupsProfilePage = () => {
                   const updatedAvatar = post.user?.avatar
                     ? post.user.avatar.replace('D:\\NLCN\\Web\\server\\', 'http://localhost:3001/').replace(/\\/g, '/')
                     : post.user?.avatar
-
                   return (
                     <div className='overflow-hidden mx-2' key={post.id}>
                       <PostComponent
