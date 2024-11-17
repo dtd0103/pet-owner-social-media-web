@@ -22,7 +22,8 @@ export default {
       },
       fontFamily: {
         nunito: ['Nunito', 'sans-serif'],
-        sora: ['Sora', 'sans-serif']
+        sora: ['Sora', 'sans-serif'],
+        poppins: ['Poppins', 'sans-serif']
       },
       fontSize: {
         custom: '0.78rem'
