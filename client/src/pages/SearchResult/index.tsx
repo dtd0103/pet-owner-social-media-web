@@ -63,7 +63,7 @@ const SearchResults = () => {
   const sendFriendRequestS = async (userId: string) => {
     try {
       await dispatch(sendFriendRequest(userId)).unwrap()
-
+      alert('Send friend request successfully')
       dispatch(fetchRecommendedFriends())
     } catch (error) {
       console.error('Failed to send friend request:', error)
@@ -186,7 +186,7 @@ const SearchResults = () => {
                         </div>
                         {!isFriend && !isMyProfile && (
                           <button
-                            className='text-sm text-white bg-blue-500 px-4 py-2 rounded'
+                            className='flex ml-48 text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2'
                             onClick={() => sendFriendRequestS(user.id)}
                           >
                             Friend Request

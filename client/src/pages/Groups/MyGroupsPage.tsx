@@ -223,14 +223,14 @@ const MyGroupsPage = () => {
             <div className='bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse'>
               <button
                 type='button'
-                className='focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800'
+                className='text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 font-semibold hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 rounded-lg text-sm px-5 py-2.5 text-center me-2'
                 onClick={() => selectedGroupId && handleEditSubmit(selectedGroupId)}
               >
                 Update
               </button>
               <button
                 type='button'
-                className='text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700'
+                className='text-white ml-48 bg-gradient-to-r from-neutral-500 to-neutral-800 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-gray-400 dark:focus:ring-neutral-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2'
                 onClick={() => setIsEditModalOpen(false)}
               >
                 Cancel

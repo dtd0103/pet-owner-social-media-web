@@ -180,6 +180,27 @@ const ProfilePage = () => {
         setShowEditModal(false)
       })
   }
+
+  const handlePasswordChange = () => {
+    if (newPassword !== confirmPassword) {
+      alert('Passwords do not match')
+      return
+    }
+
+    dispatch(changePassword({ userId, newPassword }))
+      .then((res) => {
+        if (res.meta.requestStatus === 'fulfilled') {
+          alert('Password updated successfully')
+          setShowEditPasswordModal(false)
+        } else {
+          alert('Failed to update password')
+        }
+      })
+      .catch((error: unknown) => {
+        alert('An error occurred while updating the password')
+      })
+  }
+
   const editProfileModal = () => {
     return (
       <div className='fixed mt-10 z-40 inset-0 overflow-y-auto'>
@@ -287,7 +308,7 @@ const ProfilePage = () => {
 
                 <div className='w-full px-3 mb-6 md:mb-0'>
                   <button
-                    className='bg-slate-800 px-4 py-2 rounded-md font-semibold text-white mt-4'
+                    className='text-white mt-4 bg-gradient-to-r from-neutral-500 to-neutral-800 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-gray-400 dark:focus:ring-neutral-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2'
                     onClick={() => {
                       setShowEditModal(false)
                       setShowEditPasswordModal(true)
@@ -302,7 +323,7 @@ const ProfilePage = () => {
             <div className='bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse'>
               <button
                 type='button'
-                className='w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-500 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm'
+                className='flex ml-2 text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2'
                 onClick={handleSubmit}
               >
                 Edit
@@ -395,10 +416,10 @@ const ProfilePage = () => {
             <div className='bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse'>
               <button
                 type='button'
-                className='w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-500 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm'
-                onClick={handleChangeSubmit}
+                className='flex ml-2 text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2'
+                onClick={handlePasswordChange}
               >
-                Change Password
+                Change
               </button>
               <button
                 type='button'

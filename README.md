@@ -4,35 +4,40 @@ A social media platform for pet owners to connect, share posts, and interact wit
 
 ## Features
 
--   **User Authentication**: Register, login, and manage user profiles.
--   **Post Creation**: Create and share posts with media (images/videos).
--   **Commenting**: Add and manage comments on posts.
--   **Pet Management**: Add, edit, and remove pets in user profiles.
--   **Friendship System**: Send, accept, and reject friend requests.
--   **Group Creation**: Create and join groups related to pets.
--   **Private Messaging**: Send and receive messages between users.
--   **Reporting**: Report inappropriate content or behavior.
+User Management: Register, log in, manage profiles, and friendships.
+Content & Interaction: Create posts, comment, message, and join groups.
+Pet & Community: Add pets, engage in groups, and connect with others.
+Moderation & Reporting: Report issues, manage users, and review content.
+Analytics & Insights: Track activity, engagement, and system statistics.
+
+## Database Schema
+
+![Database Schema](./image/database.png)
+
+## System Architecture
+
+![System Architecture](./image/system_architecture.png)
 
 ## Tech Stack
 
 ### Frontend
 
--   **React**: A JavaScript library for building user interfaces.
--   **TypeScript**: A superset of JavaScript that adds static types.
--   **Redux**: For state management.
--   **Axios**: For making HTTP requests to the backend.
--   **React Router**: For navigation between pages.
--   **date-fns**: For date manipulation and formatting.
--   **Socket.IO**: For WebSocket communication in private messaging.
--   **Tailwind CSS**: A utility-first CSS framework for styling the frontend.
+React (UI library)
+TypeScript (Static typing)
+Redux Toolkit (State management)
+Axios (HTTP requests)
+React Router (Routing)
+date-fns (Date handling)
+Socket.IO (WebSockets)
+Tailwind CSS (Styling)
 
 ### Backend
 
--   **NestJS**: A framework for building scalable and maintainable server-side applications.
--   **TypeORM**: For database interaction.
--   **MySQL**: Used as the database for storing user, post, and pet data.
--   **JWT (JSON Web Tokens)**: For user authentication and authorization.
--   **Socket.IO**: For WebSocket communication in private messaging.
+NestJS (Backend framework)
+TypeORM (Database ORM)
+MySQL (Database)
+JWT (Authentication)
+Socket.IO (WebSockets)
 
 ## Installation
 

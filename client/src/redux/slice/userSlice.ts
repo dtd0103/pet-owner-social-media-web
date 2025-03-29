@@ -97,13 +97,25 @@ export const updateUserProfile = createAsyncThunk(
 export const changePassword = createAsyncThunk(
   'user/changePassword',
   async ({ userId, newPassword }: { userId: string; newPassword: string }) => {
-    const response = await axios.put(`http://localhost:3001/api/v1/users/${userId}`, { password: newPassword })
+    const response = await axios.put(
+      `http://localhost:3001/api/v1/users/${userId}`,
+      { password: newPassword },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('access_token')}`
+        }
+      }
+    )
     return response.data
   }
 )
 
 export const deleteUser = createAsyncThunk('user/deleteUser', async (userId: string) => {
-  await axios.delete(`http://localhost:3001/api/v1/users/${userId}`)
+  await axios.delete(`http://localhost:3001/api/v1/users/${userId}`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem('access_token')}`
+    }
+  })
   return userId
 })
 

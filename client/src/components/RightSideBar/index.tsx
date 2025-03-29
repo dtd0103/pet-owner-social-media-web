@@ -44,7 +44,11 @@ const RightSideBar = () => {
       }
     }
     fetchActivities()
-  }, [activities])
+
+    const intervalId = setInterval(fetchActivities, 30000)
+
+    return () => clearInterval(intervalId)
+  }, [])
 
   useEffect(() => {}, [recommendedFriends, sentRequests, activities])
 
