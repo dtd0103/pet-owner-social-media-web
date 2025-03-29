@@ -4,11 +4,11 @@ A social media platform for pet owners to connect, share posts, and interact wit
 
 ## Features
 
-User Management: Register, log in, manage profiles, and friendships.
-Content & Interaction: Create posts, comment, message, and join groups.
-Pet & Community: Add pets, engage in groups, and connect with others.
-Moderation & Reporting: Report issues, manage users, and review content.
-Analytics & Insights: Track activity, engagement, and system statistics.
+- User Management: Register, log in, manage profiles, and friendships.
+- Content & Interaction: Create posts, comment, message, and join groups.
+- Pet & Community: Add pets, engage in groups, and connect with others.
+- Moderation & Reporting: Report issues, manage users, and review content.
+- Analytics & Insights: Track activity, engagement, and system statistics.
 
 ## Database Schema
 
@@ -22,22 +22,21 @@ Analytics & Insights: Track activity, engagement, and system statistics.
 
 ### Frontend
 
-React (UI library)
-TypeScript (Static typing)
-Redux Toolkit (State management)
-Axios (HTTP requests)
-React Router (Routing)
-date-fns (Date handling)
-Socket.IO (WebSockets)
-Tailwind CSS (Styling)
+- React
+- TypeScript
+- Redux Toolkit
+- Axios
+- React Router
+- Socket.IO
+- Tailwind CSS
 
 ### Backend
 
-NestJS (Backend framework)
-TypeORM (Database ORM)
-MySQL (Database)
-JWT (Authentication)
-Socket.IO (WebSockets)
+- NestJS
+- TypeORM
+- MySQL
+- JWT
+- Socket.IO
 
 ## Installation
 
