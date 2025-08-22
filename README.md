@@ -18,6 +18,31 @@ A social media platform for pet owners to connect, share posts, and interact wit
 
 ![System Architecture](./image/system_architecture.png)
 
+## User Interface
+
+### Home Screen
+
+![Home Screen](./image/home_screen.png)
+
+### Chat Screen
+
+![Chat Screen](./image/chat_screen.png)
+
+### Group Screen
+
+![Group Screen](./image/group_screen.png)
+
+### Profile Screen
+
+![Profile Screen](./image/profile_screen.png)
+
+### Connection Screen
+
+![Connection Screen](./image/connection_screen.png)
+
+### Backend (NestJS)
+
+
 ## Tech Stack
 
 ### Frontend
