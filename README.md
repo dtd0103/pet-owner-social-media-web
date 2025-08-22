@@ -40,9 +40,6 @@ A social media platform for pet owners to connect, share posts, and interact wit
 
 ![Connection Screen](./image/connection_screen.png)
 
-### Backend (NestJS)
-
-
 ## Tech Stack
 
 ### Frontend
